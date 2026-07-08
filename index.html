@@ -101,6 +101,45 @@
   --shadow:0 0 34px rgba(255,46,196,.18);
 }
 *,*::before,*::after{box-sizing:border-box;}
+
+/* ---------- icon badges (gradient, glossy, shadowed — the emoji replacement) ---------- */
+.ibadge{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; position:relative;
+  border-radius:27%; color:#fff; overflow:hidden;
+}
+.ibadge::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(160deg, rgba(255,255,255,.4), rgba(255,255,255,0) 55%);
+}
+.ibadge svg{ position:relative; z-index:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.22)); }
+.ibadge-sm{ width:30px; height:30px; box-shadow:0 4px 9px -3px var(--ibs,rgba(0,0,0,.4)), inset 0 1px 1px rgba(255,255,255,.3); }
+.ibadge-sm svg{ width:16px; height:16px; }
+.ibadge-md{ width:44px; height:44px; box-shadow:0 6px 14px -4px var(--ibs,rgba(0,0,0,.4)), inset 0 1px 1px rgba(255,255,255,.3); }
+.ibadge-md svg{ width:23px; height:23px; }
+.ibadge-lg{ width:72px; height:72px; border-radius:24%; box-shadow:0 10px 24px -6px var(--ibs,rgba(0,0,0,.4)), inset 0 2px 2px rgba(255,255,255,.3); }
+.ibadge-lg svg{ width:36px; height:36px; }
+.ibadge-amber{ background:linear-gradient(150deg,#f3c876,#e2952f); --ibs:rgba(226,149,47,.5); }
+.ibadge-red{ background:linear-gradient(150deg,#ff9a8e,#e5484d); --ibs:rgba(229,72,77,.5); }
+.ibadge-gold{ background:linear-gradient(150deg,#ffe28f,#e8ab2e); --ibs:rgba(232,171,46,.5); }
+.ibadge-blue{ background:linear-gradient(150deg,#8fd8ff,#3b82f6); --ibs:rgba(59,130,246,.45); }
+.ibadge-teal{ background:linear-gradient(150deg,#72ecd9,#0fa89a); --ibs:rgba(15,168,154,.45); }
+.ibadge-purple{ background:linear-gradient(150deg,#cdbcfe,#8b5cf6); --ibs:rgba(139,92,246,.45); }
+.ibadge-green{ background:linear-gradient(150deg,#9bf3b4,#22c55e); --ibs:rgba(34,197,94,.45); }
+.ibadge-slate{ background:linear-gradient(150deg,#9aa7ba,#5b6577); --ibs:rgba(80,90,105,.45); }
+.ibadge-pink{ background:linear-gradient(150deg,#ffb0d8,#ec4899); --ibs:rgba(236,72,153,.45); }
+.iflat{ display:inline-flex; color:currentColor; }
+.iflat svg{ display:block; }
+.banner-ad-wrap{ margin-top:16px; border-radius:var(--radius-md); overflow:hidden; min-height:50px; }
+.banner-ad-placeholder{
+  display:flex; align-items:center; gap:10px; justify-content:center; text-align:center;
+  background:var(--surface-2); border:1px dashed var(--surface-border); color:var(--text-faint);
+  font-size:.68rem; padding:14px 16px; line-height:1.4;
+}
+.ad-sim-tag{
+  display:inline-block; margin:0 auto 10px; padding:3px 10px; border-radius:99px; background:var(--surface-2);
+  color:var(--text-faint); font-size:.6rem; font-weight:800; letter-spacing:.08em;
+}
+.ad-daily-count{ margin-top:8px; font-size:.7rem; color:var(--text-secondary); }
 html,body{height:100%;}
 body{
   margin:0; background:var(--bg); color:var(--text-primary);
@@ -172,10 +211,10 @@ button{font-family:inherit; color:inherit;}
   background:radial-gradient(ellipse at 50% 30%, var(--surface-2), var(--bg) 70%); z-index:100; gap:18px;
 }
 .splash-logo{
-  width:104px; height:104px; border-radius:26px; background:linear-gradient(145deg,var(--accent-soft),var(--accent));
-  display:flex; align-items:center; justify-content:center; font-weight:900; font-size:2.1rem; color:var(--text-on-accent);
-  box-shadow:0 20px 50px -10px var(--accent); animation:splashScale .7s cubic-bezier(.2,1.4,.4,1) both;
+  width:104px; height:104px; display:flex; align-items:center; justify-content:center;
+  filter:drop-shadow(0 18px 40px rgba(226,149,47,.45)); animation:splashScale .7s cubic-bezier(.2,1.4,.4,1) both;
 }
+.splash-logo svg{ display:block; }
 @keyframes splashScale{ 0%{opacity:0; transform:scale(.5) rotate(-8deg);} 100%{opacity:1; transform:scale(1) rotate(0);} }
 .splash-title{ font-size:1.5rem; font-weight:900; letter-spacing:.02em; opacity:0; animation:splashFade .6s ease .35s forwards; }
 .splash-sub{ font-size:.78rem; color:var(--text-secondary); letter-spacing:.2em; text-transform:uppercase; opacity:0; animation:splashFade .6s ease .55s forwards; }
@@ -245,15 +284,17 @@ button{font-family:inherit; color:inherit;}
 .score-pop{ position:absolute; top:-6px; right:6px; font-size:.7rem; font-weight:800; color:var(--success); animation:scorePop .9s ease forwards; pointer-events:none;}
 @keyframes scorePop{ 0%{opacity:0; transform:translateY(0);} 20%{opacity:1;} 100%{opacity:0; transform:translateY(-22px);} }
 .xp-mini{ grid-column:1/-1; margin-top:2px; }
-.action-bar{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px; }
+.action-bar{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:14px; }
+.action-btn-bonus{ border-color:var(--accent); }
+.action-btn-bonus .iflat{ color:var(--accent); }
 .action-btn{
   background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-md);
-  padding:10px 4px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; font-size:1.05rem;
+  padding:9px 2px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; font-size:1.05rem;
   position:relative;
 }
-.action-btn .lbl{ font-size:.62rem; font-weight:700; color:var(--text-secondary); }
+.action-btn .lbl{ font-size:.58rem; font-weight:700; color:var(--text-secondary); }
 .action-btn:disabled{ opacity:.35; cursor:not-allowed; }
-.action-btn .count{ position:absolute; top:2px; right:6px; font-size:.6rem; font-weight:800; color:var(--accent); }
+.action-btn .count{ position:absolute; top:2px; right:4px; font-size:.58rem; font-weight:800; color:var(--accent); }
 .board-outer{ display:flex; justify-content:center; position:relative; }
 .board{
   background:var(--board-bg); border-radius:var(--radius-lg); padding:8px; display:grid; gap:8px; width:100%;
@@ -278,7 +319,7 @@ button{font-family:inherit; color:inherit;}
 .merge-msg{
   background:var(--surface); border:1px solid var(--accent); color:var(--accent); font-weight:800; font-size:.85rem;
   padding:7px 16px; border-radius:99px; box-shadow:var(--shadow); animation:msgFloat calc(1400ms*var(--anim-mult)) ease forwards;
-  white-space:nowrap;
+  white-space:nowrap; display:flex; align-items:center; gap:6px;
 }
 @keyframes msgFloat{ 0%{opacity:0; transform:translateY(6px) scale(.9);} 15%{opacity:1; transform:translateY(0) scale(1);} 80%{opacity:1;} 100%{opacity:0; transform:translateY(-14px);} }
 .cheer-msg{ background:var(--surface-2); color:var(--text-secondary); border:none; }
@@ -296,7 +337,7 @@ button{font-family:inherit; color:inherit;}
 @keyframes modalPop{ from{opacity:0; transform:scale(.85) translateY(10px);} to{opacity:1; transform:scale(1) translateY(0);} }
 .modal-card h2{ margin:6px 0 4px; font-size:1.4rem; }
 .modal-card p{ color:var(--text-secondary); font-size:.85rem; margin:0 0 18px; }
-.modal-emoji{ font-size:2.6rem; }
+.modal-emoji{ display:flex; justify-content:center; margin-bottom:6px; }
 .modal-actions{ display:flex; flex-direction:column; gap:8px; }
 
 /* ---------- achievements ---------- */
@@ -306,8 +347,8 @@ button{font-family:inherit; color:inherit;}
 .tab-chip.active{ background:var(--accent); color:var(--text-on-accent); border-color:transparent; }
 .ach-card{ display:flex; gap:12px; align-items:center; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:9px; }
 .ach-card.locked{ opacity:.5; }
-.ach-ic{ width:42px; height:42px; border-radius:12px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
-.ach-ic.unlocked{ background:var(--accent); }
+.ach-ic{ width:42px; height:42px; border-radius:12px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-faint); }
+.ach-ic.unlocked{ background:var(--accent); color:var(--text-on-accent); }
 .ach-body{ flex:1; min-width:0; }
 .ach-body h4{ margin:0 0 2px; font-size:.86rem; }
 .ach-body p{ margin:0; font-size:.72rem; color:var(--text-secondary); }
@@ -385,6 +426,24 @@ input[type="range"]{ width:100%; accent-color:var(--accent); }
 // ============================== DATA ==============================
 const SAVE_KEY = 'save-v1';
 
+// ============================== AD CONFIG ==============================
+// Fill these in once you're approved. Until then the app runs in simulated/placeholder mode automatically.
+// 1) Regular AdSense account -> gives you the publisher ID + banner ad-unit slot IDs (drives the display banners below).
+// 2) Google "H5 Games Ads" program (separate application, same underlying AdSense account) -> unlocks real rewarded video via the Ad Placement API used in AdService below.
+const AD_CONFIG = {
+  adsensePublisherId: 'ca-pub-XXXXXXXXXXXXXXXX',   // TODO: your real AdSense publisher ID, e.g. 'ca-pub-1234567890123456'
+  bannerSlots: {                                    // TODO: real ad-unit slot IDs from your AdSense dashboard, one per placement
+    home: '0000000000',
+    menu: '0000000000',
+    stats: '0000000000',
+    achievements: '0000000000',
+  },
+  rewardedAdFrequencyHint: '30s',
+  dailyAdCap: 8,   // max rewarded ads/day across both reward types, prevents ad-fatigue and grinding; adjust freely
+};
+function adsConfigured(){ return !!AD_CONFIG.adsensePublisherId && AD_CONFIG.adsensePublisherId.indexOf('XXXX')===-1; }
+function bannerConfigured(slot){ return adsConfigured() && AD_CONFIG.bannerSlots[slot] && AD_CONFIG.bannerSlots[slot].indexOf('0000000000')===-1; }
+
 const MODES = [
   {id:'basic',  name:'Basic',  size:4, requires:null,     requiresTile:0,     unlockTile:2048,  desc:'The original 4×4 challenge'},
   {id:'medium', name:'Medium', size:5, requires:'basic',  requiresTile:2048,  unlockTile:4096,  desc:'5×5. More room, more chaos'},
@@ -412,15 +471,15 @@ function xpForLevel(level){ return Math.round(80*Math.pow(level,1.55)); }
 function xpForMerge(value){ return Math.max(1, Math.round(Math.log2(value)*3)); }
 
 const EXPLOSION_TIERS = [
-  {min:64,   max:127,      msg:'Nice Move! 🔥',      tier:1},
-  {min:128,  max:255,      msg:'Excellent! ⚡',       tier:2},
-  {min:256,  max:511,      msg:'Amazing! 🚀',        tier:3},
-  {min:512,  max:1023,     msg:"You're Cooking! 💪", tier:4},
-  {min:1024, max:2047,     msg:'Incredible! 👑',     tier:5},
-  {min:2048, max:4095,     msg:'LEGENDARY! 🏆',      tier:6},
-  {min:4096, max:8191,     msg:'MONSTER MERGE 💥',   tier:7},
-  {min:8192, max:16383,    msg:'UNSTOPPABLE ⚡',      tier:8},
-  {min:16384,max:Infinity, msg:'GODLIKE 👑🔥',       tier:9},
+  {min:64,   max:127,      msg:'Nice Move!',      tier:1},
+  {min:128,  max:255,      msg:'Excellent!',       tier:2},
+  {min:256,  max:511,      msg:'Amazing!',        tier:3},
+  {min:512,  max:1023,     msg:"You're Cooking!", tier:4},
+  {min:1024, max:2047,     msg:'Incredible!',     tier:5},
+  {min:2048, max:4095,     msg:'LEGENDARY!',      tier:6},
+  {min:4096, max:8191,     msg:'MONSTER MERGE',   tier:7},
+  {min:8192, max:16383,    msg:'UNSTOPPABLE',      tier:8},
+  {min:16384,max:Infinity, msg:'GODLIKE',       tier:9},
 ];
 function explosionForValue(v){ return EXPLOSION_TIERS.find(t=>v>=t.min && v<=t.max) || null; }
 
@@ -455,58 +514,58 @@ function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(
 // ---- Achievements (data-driven; add more by pushing objects) ----
 const ACHIEVEMENTS = [];
 [128,256,512,1024,2048,4096,8192,16384].forEach(v=>{
-  ACHIEVEMENTS.push({id:'tile_'+v, name:'Reach '+v, desc:'Merge a tile up to '+v, category:'Tiles', icon:'🔺',
+  ACHIEVEMENTS.push({id:'tile_'+v, name:'Reach '+v, desc:'Merge a tile up to '+v, category:'Tiles', icon:'layers',
     xp:Math.round(v/8), secret:false, check:ctx=>ctx.stats.highestTile>=v});
 });
 [1000,5000,10000,25000,50000,100000].forEach(v=>{
-  ACHIEVEMENTS.push({id:'score_'+v, name:'Score '+v.toLocaleString(), desc:'Earn '+v.toLocaleString()+' points in a single game', category:'Score', icon:'⭐',
+  ACHIEVEMENTS.push({id:'score_'+v, name:'Score '+v.toLocaleString(), desc:'Earn '+v.toLocaleString()+' points in a single game', category:'Score', icon:'star',
     xp:Math.round(v/40), secret:false, check:ctx=>ctx.stats.highestScore>=v});
 });
 [1,5,10,50].forEach(h=>{
-  ACHIEVEMENTS.push({id:'playtime_'+h, name:h+' Hour'+(h>1?'s':'')+' Played', desc:'Accumulate '+h+' hour(s) of play time', category:'Playtime', icon:'⏱️',
+  ACHIEVEMENTS.push({id:'playtime_'+h, name:h+' Hour'+(h>1?'s':'')+' Played', desc:'Accumulate '+h+' hour(s) of play time', category:'Playtime', icon:'clock',
     xp:h*20, secret:false, check:ctx=>ctx.stats.totalPlaytimeSec>=h*3600});
 });
 [100,500,1000,5000].forEach(m=>{
-  ACHIEVEMENTS.push({id:'merges_'+m, name:m.toLocaleString()+' Merges', desc:'Perform '+m.toLocaleString()+' total merges', category:'Merges', icon:'🔗',
+  ACHIEVEMENTS.push({id:'merges_'+m, name:m.toLocaleString()+' Merges', desc:'Perform '+m.toLocaleString()+' total merges', category:'Merges', icon:'link',
     xp:Math.round(m/10), secret:false, check:ctx=>ctx.stats.totalMerges>=m});
 });
 [3,7,30].forEach(d=>{
-  ACHIEVEMENTS.push({id:'streak_'+d, name:d+'-Day Streak', desc:'Play '+d+' days in a row', category:'Streaks', icon:'🔥',
+  ACHIEVEMENTS.push({id:'streak_'+d, name:d+'-Day Streak', desc:'Play '+d+' days in a row', category:'Streaks', icon:'flame',
     xp:d*15, secret:false, check:ctx=>ctx.streak.current>=d});
 });
 [10,50,100,500].forEach(g=>{
-  ACHIEVEMENTS.push({id:'games_'+g, name:g+' Games Played', desc:'Play '+g+' games', category:'Games', icon:'🎮',
+  ACHIEVEMENTS.push({id:'games_'+g, name:g+' Games Played', desc:'Play '+g+' games', category:'Games', icon:'gamepad',
     xp:Math.round(g/2), secret:false, check:ctx=>ctx.stats.gamesPlayed>=g});
 });
 [5,10,25].forEach(w=>{
-  ACHIEVEMENTS.push({id:'wins_'+w, name:w+' Victories', desc:'Win '+w+' games', category:'Games', icon:'🏆',
+  ACHIEVEMENTS.push({id:'wins_'+w, name:w+' Victories', desc:'Win '+w+' games', category:'Games', icon:'trophy',
     xp:w*10, secret:false, check:ctx=>ctx.stats.gamesWon>=w});
 });
 ['medium','hard','expert'].forEach(m=>{
   const md = MODES.find(x=>x.id===m);
-  ACHIEVEMENTS.push({id:'unlock_'+m, name:'Mode Unlocked: '+md.name, desc:'Unlock the '+md.name+' ('+md.size+'×'+md.size+') board', category:'Modes', icon:'🔓',
+  ACHIEVEMENTS.push({id:'unlock_'+m, name:'Mode Unlocked: '+md.name, desc:'Unlock the '+md.name+' ('+md.size+'×'+md.size+') board', category:'Modes', icon:'unlock',
     xp:100, secret:false, check:ctx=>ctx.progress.unlockedModes.includes(m)});
 });
 ACHIEVEMENTS.push(
-  {id:'special_no_undo', name:'Flawless Victory', desc:'Win a game without using Undo', category:'Special', icon:'💎',
+  {id:'special_no_undo', name:'Flawless Victory', desc:'Win a game without using Undo', category:'Special', icon:'gem',
     xp:150, secret:false, check:ctx=>ctx.event==='win' && ctx.game.undosLeft===1},
-  {id:'special_no_shuffle', name:'Steady Hands', desc:'Win a game without using Shuffle', category:'Special', icon:'🤚',
+  {id:'special_no_shuffle', name:'Steady Hands', desc:'Win a game without using Shuffle', category:'Special', icon:'check',
     xp:150, secret:false, check:ctx=>ctx.event==='win' && ctx.game.shufflesLeft===1},
-  {id:'special_speed_2048', name:'Speed Runner', desc:'Reach 2048 in under 5 minutes', category:'Special', icon:'⚡',
+  {id:'special_speed_2048', name:'Speed Runner', desc:'Reach 2048 in under 5 minutes', category:'Special', icon:'bolt',
     xp:250, secret:false, check:ctx=>ctx.event==='tile' && ctx.tileValue>=2048 && ctx.game.elapsedSec<300},
-  {id:'special_speed_4096', name:'Lightning Fast', desc:'Reach 4096 in under 10 minutes', category:'Special', icon:'⚡',
+  {id:'special_speed_4096', name:'Lightning Fast', desc:'Reach 4096 in under 10 minutes', category:'Special', icon:'bolt',
     xp:350, secret:false, check:ctx=>ctx.event==='tile' && ctx.tileValue>=4096 && ctx.game.elapsedSec<600}
 );
 ACHIEVEMENTS.push(
-  {id:'secret_night_owl', name:'Night Owl', desc:'Play between midnight and 4AM', category:'Secret', icon:'🦉',
+  {id:'secret_night_owl', name:'Night Owl', desc:'Play between midnight and 4AM', category:'Secret', icon:'star',
     xp:100, secret:true, check:()=>{ const h=new Date().getHours(); return h>=0 && h<4; }},
-  {id:'secret_close_call', name:'Close Call', desc:'Win with only 1 empty cell left on the board', category:'Secret', icon:'😰',
+  {id:'secret_close_call', name:'Close Call', desc:'Win with only 1 empty cell left on the board', category:'Secret', icon:'star',
     xp:200, secret:true, check:ctx=>ctx.event==='win' && ctx.emptyCells===1},
-  {id:'secret_purist', name:'Purist', desc:'Reach a mode-target tile using zero Undos, Shuffles, or Hints', category:'Secret', icon:'🧘',
+  {id:'secret_purist', name:'Purist', desc:'Reach a mode-target tile using zero Undos, Shuffles, or Hints', category:'Secret', icon:'star',
     xp:300, secret:true, check:ctx=>ctx.event==='win' && ctx.game.undosLeft===1 && ctx.game.shufflesLeft===1 && ctx.game.hintsUsedThisGame===0},
-  {id:'secret_marathon', name:'Marathoner', desc:'Play a single session lasting over 30 minutes', category:'Secret', icon:'🏃',
+  {id:'secret_marathon', name:'Marathoner', desc:'Play a single session lasting over 30 minutes', category:'Secret', icon:'star',
     xp:200, secret:true, check:ctx=>ctx.game && ctx.game.elapsedSec>=1800},
-  {id:'secret_comeback', name:'Comeback Kid', desc:'Win after the board was down to 2 empty cells or fewer at some point', category:'Secret', icon:'🎭',
+  {id:'secret_comeback', name:'Comeback Kid', desc:'Win after the board was down to 2 empty cells or fewer at some point', category:'Secret', icon:'star',
     xp:250, secret:true, check:ctx=>ctx.event==='win' && ctx.game.minEmptyCellsSeen<=2}
 );
 const ACH_CATEGORIES = ['All','Tiles','Score','Playtime','Merges','Streaks','Games','Modes','Special','Secret'];
@@ -560,6 +619,63 @@ const SKINS = [
 ];
 function tileColor(skin, value){ return skin.palette[value] || hslFallback(skin.hueBase, value); }
 
+// ============================== ICON SYSTEM (custom SVG, no emoji, no external assets) ==============================
+const ICONS = {
+  home:`<path d="M12 3.2 3 10.8V21h6v-7h6v7h6V10.8L12 3.2Z"/>`,
+  target:`<circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6"/>`,
+  trophy:`<path d="M6.5 4h11v5.2c0 3.4-2.6 6.1-6 6.4v2.4h2.4c.7 0 1.2.6 1.2 1.3H9c0-.7.5-1.3 1.2-1.3H12v-2.4c-3.4-.3-6-3-6-6.4V4Z"/><path d="M6.5 5.4H4.2v1.8c0 1.9 1.4 3.5 3.2 3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M17.5 5.4h2.3v1.8c0 1.9-1.4 3.5-3.2 3.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="7.6" y="19.4" width="8.8" height="1.8" rx="0.9"/>`,
+  menu:`<rect x="3.5" y="6" width="17" height="2.1" rx="1.05"/><rect x="3.5" y="10.95" width="17" height="2.1" rx="1.05"/><rect x="3.5" y="15.9" width="17" height="2.1" rx="1.05"/>`,
+  sliders:`<circle cx="6.5" cy="6.5" r="2.2"/><rect x="10.2" y="5.6" width="10.3" height="1.8" rx="0.9"/><rect x="3.5" y="11.1" width="10.3" height="1.8" rx="0.9"/><circle cx="17.5" cy="12" r="2.2"/><circle cx="8" cy="17.5" r="2.2"/><rect x="11.7" y="16.6" width="8.8" height="1.8" rx="0.9"/>`,
+  calendar:`<rect x="3.4" y="5" width="17.2" height="15.5" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="3.4" y1="9.6" x2="20.6" y2="9.6" stroke="currentColor" stroke-width="1.8"/><line x1="7.6" y1="2.6" x2="7.6" y2="6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="16.4" y1="2.6" x2="16.4" y2="6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="13.8" r="1.05"/><circle cx="12" cy="13.8" r="1.05"/><circle cx="16" cy="13.8" r="1.05"/>`,
+  chart:`<rect x="4" y="13" width="3.6" height="7" rx="0.8"/><rect x="10.2" y="8.5" width="3.6" height="11.5" rx="0.8"/><rect x="16.4" y="4.5" width="3.6" height="15.5" rx="0.8"/>`,
+  palette:`<path d="M12 3.2c-4.9 0-8.8 3.9-8.8 8.7 0 4 2.7 6.9 6 6.9.9 0 1.5-.6 1.5-1.5 0-.4-.2-.7-.4-1a1.3 1.3 0 0 1 1-2.2h1.9c2.9 0 5.3-2.3 5.3-5.2 0-3.1-3-5.7-6.5-5.7Z"/><circle cx="8" cy="10.5" r="1.15" fill="#ff6b6b"/><circle cx="11.3" cy="7.6" r="1.15" fill="#4dd0e1"/><circle cx="15.2" cy="8.6" r="1.15" fill="#ffd166"/><circle cx="16.4" cy="12.4" r="1.15" fill="#a78bfa"/>`,
+  info:`<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="10.2" width="2" height="6.6" rx="1"/><circle cx="12" cy="7.4" r="1.15"/>`,
+  undo:`<path d="M7.5 8H15a5 5 0 0 1 0 10h-3.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M10.2 4.6 6 8l4.2 3.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  shuffle:`<path d="M3.5 7h3.7c1.2 0 1.9.5 2.6 1.5l1 1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 17h3.7c1.2 0 1.9-.5 2.6-1.5l5.1-7c.7-1 1.4-1.5 2.6-1.5h2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.9 15.5 15 17c.7 1 1.4 1.5 2.6 1.5h2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.3 4 20.5 7 17.3 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.3 14.5 20.5 17.5 17.3 20.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+  restart:`<path d="M19 12a7 7 0 1 1-2-4.9" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M19 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>`,
+  bulb:`<path d="M12 3.5a5.8 5.8 0 0 0-3.4 10.5c.6.4.9 1 .9 1.7v.6h5v-.6c0-.7.3-1.3.9-1.7A5.8 5.8 0 0 0 12 3.5Z"/><rect x="9.7" y="17.6" width="4.6" height="1.5" rx="0.5" fill="rgba(0,0,0,.28)"/><rect x="10.1" y="19.5" width="3.8" height="1.4" rx="0.5" fill="rgba(0,0,0,.28)"/>`,
+  play:`<path d="M7 4.5v15l13-7.5-13-7.5Z"/>`,
+  lock:`<rect x="5.5" y="10.5" width="13" height="9.5" rx="2.2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="14.8" r="1.3" fill="rgba(0,0,0,.3)"/>`,
+  unlock:`<rect x="5.5" y="10.5" width="13" height="9.5" rx="2.2"/><path d="M8 10.5V8a4 4 0 0 1 7.6-1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14.8" r="1.3" fill="rgba(0,0,0,.3)"/>`,
+  gameover:`<circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="8.7" y1="8.7" x2="15.3" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="15.3" y1="8.7" x2="8.7" y2="15.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+  flame:`<path d="M12 2.5c.6 2.4-1.8 3.5-1.8 6 0 1 .5 1.7 1.3 1.7.9 0 1.3-.8 1.1-1.7 1.9 1 3.4 3.1 3.4 5.6a4.9 4.9 0 0 1-4.9 4.9A5.4 5.4 0 0 1 5.7 13c0-3.8 2.9-6.2 4.4-8.2.6-.8 1.4-1.5 1.9-2.3Z"/>`,
+  star:`<path d="M12 2.8 14.7 9l6.7.6-5.1 4.4 1.6 6.5L12 17l-5.9 3.5 1.6-6.5-5.1-4.4L9.3 9 12 2.8Z"/>`,
+  layers:`<path d="M12 3.5 21 8l-9 4.5L3 8l9-4.5Z"/><path d="M3 12l9 4.5 9-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16l9 4.5 9-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  clock:`<circle cx="12" cy="12.5" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.5v5.3l3.8 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 2.5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+  link:`<path d="M9.5 14.5 14.5 9.5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M11 6.5 12.6 4.9a3.6 3.6 0 0 1 5.1 5.1L16 11.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M13 17.5 11.4 19.1a3.6 3.6 0 0 1-5.1-5.1L8 12.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+  gamepad:`<path d="M6.5 8h11a4 4 0 0 1 3.9 4.9l-.7 3a2.6 2.6 0 0 1-4.5 1.2L15 15.5H9l-1.2 1.6a2.6 2.6 0 0 1-4.5-1.2l-.7-3A4 4 0 0 1 6.5 8Z"/><rect x="6.8" y="10.6" width="1.6" height="4.2" rx="0.6" fill="rgba(0,0,0,.3)"/><rect x="5.5" y="11.9" width="4.2" height="1.6" rx="0.6" fill="rgba(0,0,0,.3)"/><circle cx="16.3" cy="11.3" r="1" fill="rgba(0,0,0,.3)"/><circle cx="18.3" cy="13.3" r="1" fill="rgba(0,0,0,.3)"/>`,
+  gem:`<path d="M6.5 4h11l3.5 5.2L12 21 2.5 9.2 6.5 4Z"/><path d="M2.5 9.2h18M6.5 4 9 9.2 12 21 15 9.2 17.5 4" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1.1"/>`,
+  bolt:`<path d="M13 2.5 5 13.5h5.5L10 21.5l9-12.5h-5.8L13 2.5Z"/>`,
+  question:`<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 1 1 3.9 2.3c-.9.5-1.4 1-1.4 2v.4" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="17" r="1.05" fill="rgba(0,0,0,.35)"/>`,
+  check:`<path d="M5 12.5 9.5 17 19 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  close:`<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`,
+  coin:`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="6.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1.2"/><path d="M12 8.3v7.4M10 10h3.4a1.6 1.6 0 0 1 0 3.2H10.4a1.6 1.6 0 0 0 0 3.2H14" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1.2" stroke-linecap="round"/>`,
+  film:`<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M9.5 9v6l5-3-5-3Z" fill="rgba(0,0,0,.32)"/>`,
+  warning:`<path d="M12 3.5 21.5 20h-19L12 3.5Z"/><rect x="11.1" y="9.5" width="1.8" height="5.4" rx="0.9" fill="rgba(0,0,0,.35)"/><circle cx="12" cy="17" r="1.1" fill="rgba(0,0,0,.35)"/>`,
+  chevronLeft:`<path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>`,
+  chevronRight:`<path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>`,
+  arrowUp:`<path d="M12 3.8 4.8 12.6h4.4V20h5.6v-7.4h4.4L12 3.8Z"/>`,
+};
+function icon(name, size){
+  const inner = ICONS[name] || ICONS.question;
+  return `<svg viewBox="0 0 24 24" width="${size||24}" height="${size||24}" fill="currentColor" aria-hidden="true">${inner}</svg>`;
+}
+function badge(name, grad, sizeClass){
+  return `<span class="ibadge ${grad?'ibadge-'+grad:'ibadge-amber'} ${sizeClass||'ibadge-md'}">${icon(name)}</span>`;
+}
+function flatIcon(name, size){ return `<span class="iflat">${icon(name, size)}</span>`; }
+function brandLogoSvg(size){
+  size = size || 100;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f3c876"/><stop offset="100%" stop-color="#e2952f"/></linearGradient></defs>
+    <rect x="4" y="4" width="92" height="92" rx="26" fill="url(#logoGrad)"/>
+    <rect x="17" y="17" width="30" height="30" rx="9" fill="#fff" opacity="0.97"/>
+    <rect x="53" y="17" width="30" height="30" rx="9" fill="#fff" opacity="0.82"/>
+    <rect x="17" y="53" width="30" height="30" rx="9" fill="#fff" opacity="0.82"/>
+    <rect x="53" y="53" width="30" height="30" rx="9" fill="#fff" opacity="0.97"/>
+  </svg>`;
+}
+
 // ============================== STATE ==============================
 function defaultState(){
   return {
@@ -598,6 +714,7 @@ function defaultState(){
       haptics:{ enabled:true, intensity:'medium' },
       display:{ mode:'dark', animSpeed:'normal' },
     },
+    ads:{ today:{ date:null, count:0 } },
     savedGame:null,
   };
 }
@@ -890,7 +1007,7 @@ function triggerWin(modeDef){
   STATE.savedGame=serializeActiveGame();
   scheduleSave();
   showModal({
-    emoji:'🏆', title:'You Win!',
+    icon:'trophy', grad:'gold', title:'You Win!',
     body:'You reached '+modeDef.unlockTile+' in '+modeDef.name+' Mode.'+(unlockMsg?' '+unlockMsg:''),
     actions:[
       {label:'Keep Playing', kind:'primary', onClick:()=>{ closeModal(); }},
@@ -908,7 +1025,7 @@ function triggerGameOver(){
   STATE.savedGame=serializeActiveGame();
   scheduleSave();
   showModal({
-    emoji:'💀', title:'Game Over',
+    icon:'gameover', grad:'red', title:'Game Over',
     body:'Final score: '+ACTIVE_GAME.score.toLocaleString(),
     actions:[
       {label:'Try Again', kind:'primary', onClick:()=>{ const m=ACTIVE_GAME.mode; closeModal(); startGame(m); }},
@@ -1093,16 +1210,17 @@ function render(){
     case 'about': app.innerHTML=renderAbout(); break;
     default: app.innerHTML=renderHome();
   }
+  activateBannerSlots();
 }
 function withNav(html){ return html + bottomNavHtml(); }
 function bottomNavHtml(){
-  const items=[{id:'home',ic:'🏠',lbl:'Home'},{id:'modes',ic:'🎯',lbl:'Modes'},{id:'achievements',ic:'🏅',lbl:'Awards'},{id:'menu',ic:'☰',lbl:'Menu'},{id:'settings',ic:'⚙️',lbl:'Settings'}];
-  return `<div class="bottom-nav">${items.map(i=>`<button class="nav-item ${CURRENT_SCREEN===i.id?'active':''}" onclick="nav('${i.id}')"><span>${i.ic}</span><span class="lbl">${i.lbl}</span></button>`).join('')}</div>`;
+  const items=[{id:'home',ic:'home',lbl:'Home'},{id:'modes',ic:'target',lbl:'Modes'},{id:'achievements',ic:'trophy',lbl:'Awards'},{id:'menu',ic:'menu',lbl:'Menu'},{id:'settings',ic:'sliders',lbl:'Settings'}];
+  return `<div class="bottom-nav">${items.map(i=>`<button class="nav-item ${CURRENT_SCREEN===i.id?'active':''}" onclick="nav('${i.id}')">${flatIcon(i.ic,21)}<span class="lbl">${i.lbl}</span></button>`).join('')}</div>`;
 }
 
 function renderSplash(){
   return `<div class="splash-screen">
-    <div class="splash-logo">2K</div>
+    <div class="splash-logo">${brandLogoSvg(104)}</div>
     <div class="splash-title">2048 PRO <span style="color:var(--accent)">MAX</span></div>
     <div class="splash-sub">Premium Puzzle</div>
   </div>`;
@@ -1146,34 +1264,36 @@ function renderHome(){
     ${hasSaved?`<div class="card continue-card" style="margin-bottom:14px;" onclick="resumeGame()">
       <div class="continue-board-mini">${continueMiniBoard()}</div>
       <div style="flex:1;"><div style="font-weight:800;">Continue Game</div><div style="font-size:.76rem;color:var(--text-secondary);">${modeLabel(STATE.savedGame.mode)} · Score ${STATE.savedGame.score.toLocaleString()}</div></div>
-      <div class="icon-btn" style="pointer-events:none;">▶</div>
+      <div class="icon-btn" style="pointer-events:none;">${flatIcon('play',16)}</div>
     </div>`:''}
 
-    <button class="btn btn-primary btn-block" style="margin-bottom:12px;" onclick="${hasSaved?'resumeGame()':"nav('modes')"}">${hasSaved?'▶ Continue Playing':'▶ Play'}</button>
-    <button class="btn btn-secondary btn-block" onclick="nav('menu')">☰ Menu</button>
+    <button class="btn btn-primary btn-block" style="margin-bottom:12px;" onclick="${hasSaved?'resumeGame()':"nav('modes')"}">${flatIcon('play',15)} ${hasSaved?'Continue Playing':'Play'}</button>
+    <button class="btn btn-secondary btn-block" onclick="nav('menu')">${flatIcon('menu',15)} Menu</button>
+    ${renderBannerSlot('home')}
   </div>`);
 }
 
 function renderMenu(){
   const unlockedCount=Object.keys(STATE.achievements.unlocked).length;
   const items=[
-    {id:'modes', ic:'🎯', lbl:'Game Modes', sub:STATE.progress.unlockedModes.length+'/'+MODES.length+' unlocked'},
-    {id:'achievements', ic:'🏅', lbl:'Achievements', sub:unlockedCount+'/'+ACHIEVEMENTS.length+' unlocked'},
-    {id:'challenges', ic:'📅', lbl:'Challenges', sub:'Daily & weekly'},
-    {id:'stats', ic:'📊', lbl:'Statistics', sub:STATE.stats.gamesPlayed+' games played'},
-    {id:'themes', ic:'🎨', lbl:'Themes & Skins', sub:STATE.progress.unlockedThemes.length+'/'+THEMES.length+' themes unlocked'},
-    {id:'settings', ic:'⚙️', lbl:'Settings', sub:'Sound, haptics, display'},
-    {id:'about', ic:'ℹ️', lbl:'About', sub:'Version & info'},
+    {id:'modes', ic:'target', grad:'red', lbl:'Game Modes', sub:STATE.progress.unlockedModes.length+'/'+MODES.length+' unlocked'},
+    {id:'achievements', ic:'trophy', grad:'gold', lbl:'Achievements', sub:unlockedCount+'/'+ACHIEVEMENTS.length+' unlocked'},
+    {id:'challenges', ic:'calendar', grad:'teal', lbl:'Challenges', sub:'Daily & weekly'},
+    {id:'stats', ic:'chart', grad:'blue', lbl:'Statistics', sub:STATE.stats.gamesPlayed+' games played'},
+    {id:'themes', ic:'palette', grad:'purple', lbl:'Themes & Skins', sub:STATE.progress.unlockedThemes.length+'/'+THEMES.length+' themes unlocked'},
+    {id:'settings', ic:'sliders', grad:'slate', lbl:'Settings', sub:'Sound, haptics, display'},
+    {id:'about', ic:'info', grad:'blue', lbl:'About', sub:'Version & info'},
   ];
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">←</button><h1 class="page-title">Menu</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Menu</h1></div>
     <div class="menu-list">
       ${items.map(i=>`<button class="menu-row" onclick="nav('${i.id}')">
-        <div class="menu-row-ic">${i.ic}</div>
+        ${badge(i.ic, i.grad, 'ibadge-md')}
         <div class="menu-row-body"><div class="menu-row-lbl">${i.lbl}</div><div class="menu-row-sub">${i.sub}</div></div>
-        <div class="menu-row-chev">›</div>
+        <div class="menu-row-chev">${flatIcon('chevronRight',20)}</div>
       </button>`).join('')}
     </div>
+    ${renderBannerSlot('menu')}
   </div>`);
 }
 
@@ -1185,7 +1305,7 @@ function renderModes(){
       <div class="mode-top">
         <div class="mode-size-badge">${m.size}×${m.size}</div>
         <div class="mode-info"><h3>${m.name}</h3><p>${unlocked? m.desc : 'Reach '+m.requiresTile+' in '+reqMode.name}</p></div>
-        ${unlocked?'<span style="color:var(--accent);font-size:1.3rem;">›</span>':'<span class="lock-ic">🔒</span>'}
+        ${unlocked?`<span style="color:var(--accent);">${flatIcon('chevronRight',22)}</span>`:`<span class="lock-ic">${flatIcon('lock',18)}</span>`}
       </div>
     </div>`;
   }).join('');
@@ -1196,10 +1316,10 @@ function renderModes(){
   const future=FUTURE_LOCKED_MODES.map(name=>`<div class="mode-card locked"><div class="mode-top">
       <div class="mode-size-badge">?</div>
       <div class="mode-info"><h3>${name}</h3><p>Prepared for a future update</p></div>
-      <span class="lock-ic">🔒</span></div></div>`).join('');
+      <span class="lock-ic">${flatIcon('lock',18)}</span></div></div>`).join('');
 
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">←</button><h1 class="page-title">Game Modes</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Game Modes</h1></div>
     ${rows}
     <div class="mono-label" style="margin:18px 0 8px;">Reserved For Future Updates</div>
     ${comingSoon}${future}
@@ -1214,9 +1334,9 @@ function renderGame(){
   const xpPct=Math.min(100, Math.round(p.xp/xpNeed*100));
   return withNav(`<div class="screen">
     <div class="game-topbar">
-      <button class="icon-btn" onclick="nav('home')">←</button>
+      <button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button>
       <div class="mode-chip">${mode.name} ${mode.size}×${mode.size}</div>
-      <button class="icon-btn" style="margin-left:auto;" onclick="doRestart()" title="Restart">⟲</button>
+      <button class="icon-btn" style="margin-left:auto;" onclick="doRestart()" title="Restart">${flatIcon('restart',18)}</button>
     </div>
     <div class="score-row">
       <div class="score-block"><div class="k">Score</div><div class="v num" id="hud-score">${ACTIVE_GAME.score.toLocaleString()}</div></div>
@@ -1225,10 +1345,11 @@ function renderGame(){
       <div class="xp-mini"><div class="progress-track"><div class="progress-fill" id="hud-xp-fill" style="width:${xpPct}%"></div></div></div>
     </div>
     <div class="action-bar">
-      <button class="action-btn" onclick="doUndo()" ${ACTIVE_GAME.undosLeft<=0?'disabled':''}>↩<span class="lbl">Undo</span>${ACTIVE_GAME.undosLeft>0?`<span class="count">${ACTIVE_GAME.undosLeft}</span>`:''}</button>
-      <button class="action-btn" onclick="doShuffle()" ${ACTIVE_GAME.shufflesLeft<=0?'disabled':''}>🔀<span class="lbl">Shuffle</span>${ACTIVE_GAME.shufflesLeft>0?`<span class="count">${ACTIVE_GAME.shufflesLeft}</span>`:''}</button>
-      <button class="action-btn" onclick="doRestart()">🔄<span class="lbl">Restart</span></button>
-      <button class="action-btn" onclick="doHint()">💡<span class="lbl">Hint</span></button>
+      <button class="action-btn" onclick="doUndo()" ${ACTIVE_GAME.undosLeft<=0?'disabled':''}>${flatIcon('undo',19)}<span class="lbl">Undo</span>${ACTIVE_GAME.undosLeft>0?`<span class="count">${ACTIVE_GAME.undosLeft}</span>`:''}</button>
+      <button class="action-btn" onclick="doShuffle()" ${ACTIVE_GAME.shufflesLeft<=0?'disabled':''}>${flatIcon('shuffle',19)}<span class="lbl">Shuffle</span>${ACTIVE_GAME.shufflesLeft>0?`<span class="count">${ACTIVE_GAME.shufflesLeft}</span>`:''}</button>
+      <button class="action-btn" onclick="doRestart()">${flatIcon('restart',19)}<span class="lbl">Restart</span></button>
+      <button class="action-btn" onclick="doHint()">${flatIcon('bulb',19)}<span class="lbl">Hint</span></button>
+      <button class="action-btn action-btn-bonus" onclick="openAdChooser()">${flatIcon('film',19)}<span class="lbl">Bonus</span></button>
     </div>
     <div class="board-outer">
       <div class="board-msg-layer" id="board-msg-layer"></div>
@@ -1347,7 +1468,7 @@ function renderAchievements(){
   const unlockedCount=Object.keys(STATE.achievements.unlocked).length;
   const pct=Math.round(unlockedCount/ACHIEVEMENTS.length*100);
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">←</button><h1 class="page-title">Achievements</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Achievements</h1></div>
     <div class="card" style="margin-bottom:14px;">
       <div class="dash-xp-row"><span>${unlockedCount} / ${ACHIEVEMENTS.length} unlocked</span><span>${pct}%</span></div>
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -1357,11 +1478,12 @@ function renderAchievements(){
       const unlocked=!!STATE.achievements.unlocked[a.id];
       const hide=a.secret && !unlocked;
       return `<div class="ach-card ${unlocked?'':'locked'}">
-        <div class="ach-ic ${unlocked?'unlocked':''}">${hide?'❓':a.icon}</div>
+        <div class="ach-ic ${unlocked?'unlocked':''}">${hide?icon('question',22):icon(a.icon,22)}</div>
         <div class="ach-body"><h4>${hide?'Secret Achievement':a.name}</h4><p>${hide?'Keep playing to discover this one':a.desc}</p></div>
         <div class="ach-xp">+${a.xp}</div>
       </div>`;
     }).join('')}
+    ${renderBannerSlot('achievements')}
   </div>`);
 }
 function setAchFilter(c){ achFilter=c; render(); }
@@ -1370,7 +1492,7 @@ function renderChallenges(){
   ensureChallenges();
   const d=STATE.challenges.daily, w=STATE.challenges.weekly;
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">←</button><h1 class="page-title">Challenges</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Challenges</h1></div>
     <div class="mono-label" style="margin-bottom:8px;">Daily Challenge</div>
     <div class="card" style="margin-bottom:18px;">
       <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:800;">${d.label}</div>${d.completed?'<span class="pill pill-new">Done</span>':''}</div>
@@ -1404,7 +1526,7 @@ function renderStats(){
   const favEntry=Object.entries(s.modeCounts).sort((a,b)=>b[1]-a[1])[0];
   const favLabel=favEntry&&favEntry[1]>0? modeLabel(favEntry[0]) : '—';
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">←</button><h1 class="page-title">Statistics</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Statistics</h1></div>
     <div class="stat-grid" style="margin-bottom:14px;">
       <div class="stat-card"><div class="v">${s.gamesPlayed}</div><div class="k">Games Played</div></div>
       <div class="stat-card"><div class="v">${s.gamesWon}</div><div class="k">Games Won</div></div>
@@ -1433,6 +1555,7 @@ function renderStats(){
       </div>
       <div class="heatmap" style="margin-top:12px;">${renderHeatmap()}</div>
     </div>
+    ${renderBannerSlot('stats')}
   </div>`);
 }
 
@@ -1452,7 +1575,7 @@ function renderThemes(){
     const selected=STATE.progress.selectedTheme===t.id;
     return `<div class="swatch-card ${selected?'selected':''}" ${unlocked?`onclick="selectTheme('${t.id}')"`:''} style="${unlocked?'':'opacity:.55;'}">
       <div class="swatch-preview" data-theme-preview="${t.id}"></div>
-      <div class="swatch-name"><span>${t.name}</span><span>${unlocked?(selected?'✓':''):'🔒'}</span></div>
+      <div class="swatch-name"><span>${t.name}</span><span>${unlocked?(selected?flatIcon('check',16):''):flatIcon('lock',15)}</span></div>
       ${!unlocked&&t.hint?`<div style="font-size:.65rem;color:var(--text-faint);padding:0 10px 8px;">${t.hint}</div>`:''}
     </div>`;
   }).join('');
@@ -1462,13 +1585,13 @@ function renderThemes(){
     const previewVals=[2,8,64,512];
     return `<div class="swatch-card ${selected?'selected':''}" ${unlocked?`onclick="selectSkin('${s.id}')"`:''} style="${unlocked?'':'opacity:.55;'}">
       <div class="swatch-preview">${previewVals.map(v=>{ const c=tileColor(s,v); return `<div class="tile-swatch" style="background:${c.bg};color:${c.fg}">${v}</div>`; }).join('')}</div>
-      <div class="swatch-name"><span>${s.name}</span><span>${unlocked?(selected?'✓':''):'🔒'}</span></div>
+      <div class="swatch-name"><span>${s.name}</span><span>${unlocked?(selected?flatIcon('check',16):''):flatIcon('lock',15)}</span></div>
       ${!unlocked&&s.hint?`<div style="font-size:.65rem;color:var(--text-faint);padding:0 10px 8px;">${s.hint}</div>`:''}
     </div>`;
   }).join('');
   setTimeout(paintThemePreviews, 0);
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">←</button><h1 class="page-title">Themes & Skins</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Themes & Skins</h1></div>
     <div class="tab-row">
       <button class="tab-chip ${cosmeticsTab==='themes'?'active':''}" onclick="setCosmeticsTab('themes')">App Themes</button>
       <button class="tab-chip ${cosmeticsTab==='skins'?'active':''}" onclick="setCosmeticsTab('skins')">Tile Skins</button>
@@ -1509,7 +1632,7 @@ function tapVersion(){
 }
 function renderDebugPanel(){
   return `<div class="debug-panel">
-    <h3>⚠ Debug Panel (dev only)</h3>
+    <h3>${flatIcon('warning',16)} Debug Panel (dev only)</h3>
     <p style="font-size:.72rem;color:var(--text-secondary);">Hidden test tooling — strip or gate behind a build flag in a real release.</p>
     <div class="debug-row">
       <button class="btn btn-secondary btn-sm" onclick="debugUnlockAllModes()">Unlock All Modes</button>
@@ -1529,7 +1652,7 @@ function renderDebugPanel(){
 function renderSettings(){
   const st=STATE.settings;
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">←</button><h1 class="page-title">Settings</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Settings</h1></div>
     <div class="settings-section"><h3>Audio</h3><div class="card">
       ${toggleRow('Master Sound','sound.master',st.sound.master)}
       ${toggleRow('Merge Sound','sound.merge',st.sound.merge)}
@@ -1563,7 +1686,7 @@ function renderSettings(){
 }
 function renderAbout(){
   return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">←</button><h1 class="page-title">About</h1></div>
+    <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">About</h1></div>
     <div class="card">
       <div style="font-weight:900;font-size:1.1rem;margin-bottom:6px;">2048 PRO MAX</div>
       <p style="color:var(--text-secondary);font-size:.85rem;line-height:1.5;">A premium, fully offline puzzle game built around the classic 2048 merge mechanic — four board sizes, a full XP and achievement system, daily and weekly challenges, streaks, eight themes, and seven tile skins. No backend, no accounts, no ads — nothing ever leaves your device.</p>
@@ -1575,12 +1698,12 @@ function renderAbout(){
 }
 
 // ============================== EFFECTS ==============================
-function showModal({emoji,title,body,actions}){
+function showModal({icon:iconName, grad, title, body, actions}){
   const old=document.getElementById('active-modal'); if(old) old.remove();
   const overlay=document.createElement('div');
   overlay.className='modal-overlay'; overlay.id='active-modal';
   overlay.innerHTML=`<div class="modal-card">
-    <div class="modal-emoji">${emoji}</div>
+    <div class="modal-emoji">${badge(iconName||'info', grad||'amber', 'ibadge-lg')}</div>
     <h2>${title}</h2>
     <p>${body}</p>
     <div class="modal-actions">${actions.map((a,i)=>`<button class="btn ${a.kind==='primary'?'btn-primary':'btn-secondary'} btn-block" data-action-idx="${i}">${a.label}</button>`).join('')}</div>
@@ -1605,12 +1728,12 @@ function processToastQueue(){
   setTimeout(()=>{ el.remove(); toastShowing=false; processToastQueue(); }, 3000*mult);
 }
 
-function showBoardMessage(text, isCheer){
+function showBoardMessage(text, isCheer, iconName){
   const layer=document.getElementById('board-msg-layer');
   if(!layer) return;
   const el=document.createElement('div');
   el.className='merge-msg'+(isCheer?' cheer-msg':'');
-  el.textContent=text;
+  el.innerHTML=(iconName?flatIcon(iconName,15):'')+`<span>${text}</span>`;
   layer.appendChild(el);
   setTimeout(()=>{ el.remove(); }, 1500);
 }
@@ -1657,7 +1780,7 @@ function confettiBurst(count){
   }
 }
 function triggerExplosionAt(tileEl, tier, value){
-  showBoardMessage(tier.msg);
+  showBoardMessage(tier.msg, false, tier.tier>=6?'flame':'bolt');
   screenShake();
   burstParticlesFromEl(tileEl, tier.tier);
   playSound('explosion');
@@ -1667,17 +1790,17 @@ function triggerExplosionAt(tileEl, tier, value){
 function triggerCheer(){ showBoardMessage(CHEER_MESSAGES[Math.floor(Math.random()*CHEER_MESSAGES.length)], true); }
 
 function showHintArrow(direction){
-  const arrows={up:'⬆️',down:'⬇️',left:'⬅️',right:'➡️'};
+  const rotate={up:0,right:90,down:180,left:270};
   queueToast('Hint: swipe '+direction);
   const layer=document.getElementById('fx-layer');
   const board=document.getElementById('game-board');
   if(!board||!layer) return;
   const rect=board.getBoundingClientRect();
   const el=document.createElement('div');
-  el.textContent=arrows[direction];
-  el.style.cssText=`position:absolute; left:${rect.left+rect.width/2-30}px; top:${rect.top+rect.height/2-30}px; font-size:60px; opacity:0; transform:scale(.6); transition:opacity .25s ease, transform .25s ease;`;
+  el.innerHTML=badge('arrowUp','gold','ibadge-lg');
+  el.style.cssText=`position:absolute; left:${rect.left+rect.width/2-36}px; top:${rect.top+rect.height/2-36}px; opacity:0; transform:scale(.6) rotate(${rotate[direction]}deg); transition:opacity .25s ease, transform .25s ease;`;
   layer.appendChild(el);
-  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='scale(1)'; });
+  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform=`scale(1) rotate(${rotate[direction]}deg)`; });
   setTimeout(()=>{ el.style.opacity='0'; }, 900);
   setTimeout(()=>el.remove(), 1200);
 }
@@ -1721,6 +1844,108 @@ function vibrateDevice(intensity){
   try{ navigator.vibrate(ms); }catch(e){}
 }
 
+// ============================== ADS (banner via AdSense, rewarded via Google H5 Games Ads Ad Placement API) ==============================
+function initAds(){
+  if(!adsConfigured()) return; // stays in placeholder/simulated mode until real IDs are configured above
+  try{
+    const s=document.createElement('script');
+    s.async=true;
+    s.setAttribute('data-ad-frequency-hint', AD_CONFIG.rewardedAdFrequencyHint);
+    s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+AD_CONFIG.adsensePublisherId;
+    s.crossOrigin='anonymous';
+    document.head.appendChild(s);
+    window.adsbygoogle=window.adsbygoogle||[];
+    // Ad Placement API shims, per Google's H5 Games Ads integration guide
+    window.adBreak=window.adConfig=function(o){ window.adsbygoogle.push(o); };
+  }catch(e){ console.error('ad init failed', e); }
+}
+function ensureAdDay(){
+  const today=dateKey(new Date());
+  if(!STATE.ads || STATE.ads.today.date!==today) STATE.ads={ today:{date:today, count:0} };
+}
+function adsRemainingToday(){ ensureAdDay(); return Math.max(0, AD_CONFIG.dailyAdCap - STATE.ads.today.count); }
+
+const AdService={
+  showRewarded(rewardName, onReward){
+    ensureAdDay();
+    if(adsRemainingToday()<=0){ queueToast("You've hit today's ad limit — more tomorrow!"); return; }
+    if(adsConfigured() && window.adBreak){
+      // REAL integration point: Google H5 Games Ads Ad Placement API.
+      window.adBreak({
+        type:'reward',
+        name:rewardName,
+        beforeReward:(showAdFn)=>{ showAdFn(); },
+        adViewed:()=>{ STATE.ads.today.count++; onReward(); scheduleSave(); },
+        adDismissed:()=>{ queueToast('Ad closed early — no reward given'); },
+        adBreakDone:()=>{},
+      });
+    } else {
+      simulateRewardedAd(()=>{ STATE.ads.today.count++; onReward(); scheduleSave(); });
+    }
+  }
+};
+
+function simulateRewardedAd(onComplete){
+  const old=document.getElementById('active-modal'); if(old) old.remove();
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay'; overlay.id='active-modal';
+  overlay.innerHTML=`<div class="modal-card">
+    <div class="ad-sim-tag">TEST AD · SIMULATED</div>
+    <div class="modal-emoji">${badge('film','blue','ibadge-lg')}</div>
+    <h2>Playing Ad…</h2>
+    <p>Real video ads switch on automatically once AdSense / H5 Games Ads is connected in AD_CONFIG. This placeholder lets you test the reward flow right now.</p>
+    <div class="progress-track" style="margin:6px 0 2px;"><div class="progress-fill" id="ad-sim-progress" style="width:0%; transition:width 3.4s linear;"></div></div>
+  </div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(()=>{ const bar=document.getElementById('ad-sim-progress'); if(bar) bar.style.width='100%'; });
+  setTimeout(()=>{ closeModal(); onComplete(); }, 3600);
+}
+
+function requestRewardedAd(kind){
+  const rewardName= kind==='undo' ? 'bonus_undos' : 'bonus_shuffles';
+  AdService.showRewarded(rewardName, ()=>{
+    if(!ACTIVE_GAME) return;
+    if(kind==='undo'){ ACTIVE_GAME.undosLeft+=2; queueToast('+2 Undos earned!'); }
+    else { ACTIVE_GAME.shufflesLeft+=2; queueToast('+2 Shuffles earned!'); }
+    STATE.savedGame=serializeActiveGame();
+    scheduleSave();
+    render();
+  });
+}
+
+function openAdChooser(){
+  ensureAdDay();
+  const remaining=adsRemainingToday();
+  if(remaining<=0){
+    showModal({icon:'film', grad:'slate', title:'Out of Ads for Today',
+      body:"You've watched today's limit of bonus ads. More unlock tomorrow.",
+      actions:[{label:'OK', kind:'primary', onClick:closeModal}]});
+    return;
+  }
+  showModal({
+    icon:'film', grad:'pink', title:'Get More',
+    body:`Watch a short ad to earn a bonus for this game.<div class="ad-daily-count">${remaining} of ${AD_CONFIG.dailyAdCap} ads left today</div>`,
+    actions:[
+      {label:'+2 Undos — Watch Ad', kind:'primary', onClick:()=>{ closeModal(); requestRewardedAd('undo'); }},
+      {label:'+2 Shuffles — Watch Ad', kind:'primary', onClick:()=>{ closeModal(); requestRewardedAd('shuffle'); }},
+      {label:'Not Now', kind:'secondary', onClick:closeModal},
+    ]
+  });
+}
+
+function renderBannerSlot(slotKey){
+  if(bannerConfigured(slotKey)){
+    return `<div class="banner-ad-wrap"><ins class="adsbygoogle" style="display:block" data-ad-client="${AD_CONFIG.adsensePublisherId}" data-ad-slot="${AD_CONFIG.bannerSlots[slotKey]}" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
+  }
+  return `<div class="banner-ad-wrap banner-ad-placeholder">${flatIcon('film',15)}<span>Banner ad placeholder — connects automatically once AdSense is configured</span></div>`;
+}
+function activateBannerSlots(){
+  if(!adsConfigured()) return;
+  document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])').forEach(()=>{
+    try{ (window.adsbygoogle=window.adsbygoogle||[]).push({}); }catch(e){}
+  });
+}
+
 // ============================== INIT ==============================
 document.addEventListener('keydown', e=>{
   const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
@@ -1758,6 +1983,7 @@ async function boot(){
     STATE.progress.selectedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   }
   applyThemeToDOM();
+  initAds();
   CURRENT_SCREEN='splash';
   render();
   setTimeout(()=>{ nav('home'); }, 2200);
