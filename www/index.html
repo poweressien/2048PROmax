@@ -151,8 +151,8 @@ body{
 button{font-family:inherit; color:inherit;}
 .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:.02em; }
 .mono-label{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; text-transform:uppercase; letter-spacing:.14em; font-size:.68rem; color:var(--text-secondary); font-weight:600;}
-#app{ min-height:100vh; padding-bottom:78px; }
-.screen{ max-width:560px; margin:0 auto; padding:18px 18px 24px; animation:screenIn .35s ease both; }
+#app{ min-height:100vh; padding-bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.screen{ max-width:560px; margin:0 auto; padding:24px 18px; width:100%; display:flex; flex-direction:column; animation:screenIn .35s ease both; }
 @keyframes screenIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
 /* ---------- generic components ---------- */
@@ -169,7 +169,8 @@ button{font-family:inherit; color:inherit;}
 .page-title{ font-size:1.3rem; font-weight:800; letter-spacing:-.01em; margin:0;}
 .card{
   background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-lg);
-  padding:16px; box-shadow:var(--shadow);
+  padding:20px; box-shadow:0 8px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1);
+  backdrop-filter:blur(4px); transform:translateZ(0);
 }
 .btn{
   border:none; border-radius:var(--radius-md); padding:13px 18px; font-weight:700; font-size:.92rem;
@@ -222,7 +223,19 @@ button{font-family:inherit; color:inherit;}
 
 /* ---------- home dashboard ---------- */
 .hero-row{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
-.wordmark{ font-size:1.5rem; font-weight:900; letter-spacing:-.02em; }
+.wordmark{
+  font-size:2.4rem; font-weight:900; letter-spacing:-.03em; line-height:1;
+  color:#f3c876;
+  text-shadow:
+    0 1px 0 #e8a33d,
+    0 2px 0 #d4922a,
+    0 3px 0 #b87c1f,
+    0 4px 0 #9c6a16,
+    0 6px 16px rgba(0,0,0,.5),
+    0 2px 40px rgba(243,200,118,.3);
+  display:block;
+}
+.wordmark span{ color:#fff; font-weight:900; }
 .wordmark span{ color:var(--accent); }
 .title-badge{
   margin-left:auto; display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--surface-border);
@@ -243,42 +256,58 @@ button{font-family:inherit; color:inherit;}
 .menu-tile .ic{ font-size:1.4rem; }
 .menu-tile .lbl{ font-weight:700; font-size:.9rem; }
 .menu-tile .sub{ font-size:.72rem; color:var(--text-secondary); }
-.menu-list{ display:flex; flex-direction:column; gap:9px; }
+.menu-list{ display:flex; flex-direction:column; gap:10px; }
 .menu-row{
   display:flex; align-items:center; gap:14px; width:100%; text-align:left;
-  background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-md);
-  padding:13px 15px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-lg);
+  padding:16px 16px; cursor:pointer;
+  box-shadow:0 8px 20px -5px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .15s ease, box-shadow .15s ease;
 }
-.menu-row-ic{ width:44px; height:44px; border-radius:12px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0; }
+.menu-row:active{ transform:scale(.98); box-shadow:0 3px 8px -2px rgba(0,0,0,.25); }
 .menu-row-body{ flex:1; min-width:0; }
-.menu-row-lbl{ font-weight:700; font-size:.92rem; }
-.menu-row-sub{ font-size:.72rem; color:var(--text-secondary); margin-top:2px; }
-.menu-row-chev{ font-size:1.4rem; color:var(--text-faint); flex-shrink:0; }
+.menu-row-lbl{ font-weight:700; font-size:.96rem; }
+.menu-row-sub{ font-size:.73rem; color:var(--text-secondary); margin-top:2px; }
+.menu-row-chev{ color:var(--text-faint); flex-shrink:0; }
 .continue-card{ display:flex; align-items:center; gap:14px; cursor:pointer; }
 .continue-board-mini{ width:52px; height:52px; border-radius:12px; background:var(--board-bg); flex-shrink:0; display:grid; grid-template-columns:repeat(4,1fr); gap:2px; padding:5px;}
 .continue-board-mini div{ background:var(--accent-soft); border-radius:3px; opacity:.85;}
 
 /* ---------- mode select ---------- */
+.mode-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:20px 0; }
 .mode-card{
-  border-radius:var(--radius-lg); padding:16px; margin-bottom:12px; border:1px solid var(--surface-border);
+  border-radius:var(--radius-lg); padding:16px; border:1px solid var(--surface-border);
   background:var(--surface); cursor:pointer; position:relative; overflow:hidden;
+  aspect-ratio:1/1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  box-shadow:0 10px 28px -6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1);
+  transition:transform .2s ease, box-shadow .2s ease;
 }
-.mode-card.locked{ opacity:.55; cursor:not-allowed; filter:grayscale(.4); }
-.mode-card .mode-top{ display:flex; justify-content:space-between; align-items:flex-start; }
+.mode-card:hover:not(.locked){ transform:translateY(-4px); box-shadow:0 14px 36px -6px rgba(0,0,0,.4); }
+.mode-card.locked{ opacity:.5; cursor:not-allowed; filter:grayscale(.5); }
+.mode-card .mode-top{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; width:100%; }
 .mode-size-badge{
-  width:52px; height:52px; border-radius:14px; background:var(--surface-2); display:flex; align-items:center;
-  justify-content:center; font-weight:900; font-size:.95rem; flex-shrink:0; color:var(--accent);
+  width:48px; height:48px; border-radius:12px; background:var(--surface-2); display:flex; align-items:center;
+  justify-content:center; font-weight:900; font-size:.88rem; flex-shrink:0; color:var(--accent);
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
-.mode-info{ flex:1; padding:0 12px; }
-.mode-info h3{ margin:0 0 3px; font-size:1.02rem; }
-.mode-info p{ margin:0; font-size:.78rem; color:var(--text-secondary); }
-.lock-ic{ font-size:1.1rem; color:var(--text-faint); }
+.mode-info{ flex:0; padding:0; }
+.mode-info h3{ margin:2px 0 0; font-size:.92rem; }
+.mode-info p{ margin:3px 0 0; font-size:.7rem; color:var(--text-secondary); line-height:1.2; }
+.lock-ic{ font-size:1rem; color:var(--text-faint); }
 
 /* ---------- game screen ---------- */
-.game-topbar{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.game-topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.game-screen{ justify-content:flex-start; padding-top:18px; }
+.xp-mini{ margin-bottom:10px; }
 .mode-chip{ font-size:.7rem; font-weight:700; color:var(--text-secondary); background:var(--surface); border:1px solid var(--surface-border); padding:5px 10px; border-radius:99px; }
-.score-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px; }
-.score-block{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-md); padding:9px 6px; text-align:center; position:relative; }
+.score-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:8px; }
+.score-block{
+  background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-md);
+  padding:12px 6px; text-align:center; position:relative;
+  box-shadow:0 6px 18px -4px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.score-block .k{ font-size:.58rem; font-weight:800; letter-spacing:.08em; color:var(--text-faint); margin-bottom:3px; }
+.score-block .v{ font-size:1.15rem; font-weight:900; }
 .score-block .k{ font-size:.6rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-secondary); font-weight:700;}
 .score-block .v{ font-size:1.25rem; font-weight:900; margin-top:1px; }
 .score-pop{ position:absolute; top:-6px; right:6px; font-size:.7rem; font-weight:800; color:var(--success); animation:scorePop .9s ease forwards; pointer-events:none;}
@@ -450,11 +479,8 @@ const MODES = [
   {id:'hard',   name:'Hard',   size:6, requires:'medium', requiresTile:4096,  unlockTile:8192,  desc:'6×6 for serious players'},
   {id:'expert', name:'Expert', size:8, requires:'hard',   requiresTile:8192,  unlockTile:16384, desc:'8×8. Not for the faint of heart'},
 ];
-const COMING_SOON_MODES = [
-  {id:'master',    name:'Master',    size:10, desc:'10×10 — arriving in a future update'},
-  {id:'nightmare', name:'Nightmare', size:12, desc:'12×12 — the ultimate test, coming soon'},
-];
-const FUTURE_LOCKED_MODES = ['Survival','Zen','Timed','Endless','Tournament'];
+const COMING_SOON_MODES = [];
+const FUTURE_LOCKED_MODES = [];
 
 const TITLES = [
   {min:1,  max:9,    name:'Rookie'},
@@ -733,10 +759,20 @@ function mergeDefaults(def, saved){
 let STATE=null;
 let saveTimer=null;
 function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(persist, 400); }
+function persistNow(){
+  if(!STATE) return;
+  const json = JSON.stringify(STATE);
+  try{ if(window.localStorage) window.localStorage.setItem(SAVE_KEY, json); }
+  catch(e){ console.error('localStorage save failed', e); }
+  try{ if(window.storage && window.storage.set) window.storage.set(SAVE_KEY, json, false); }
+  catch(e){}
+}
 async function persist(){
   if(!STATE) return;
-  try{ if(window.storage && window.storage.set) await window.storage.set(SAVE_KEY, JSON.stringify(STATE), false); }
-  catch(e){ console.error('save failed', e); }
+  persistNow();
+  try{
+    if(window.storage && window.storage.set) await window.storage.set(SAVE_KEY, JSON.stringify(STATE), false);
+  }catch(e){}
 }
 async function loadState(){
   try{
@@ -744,7 +780,13 @@ async function loadState(){
       const res = await window.storage.get(SAVE_KEY, false);
       if(res && res.value) return mergeDefaults(defaultState(), JSON.parse(res.value));
     }
-  }catch(e){ /* no save yet, or storage unavailable -> defaults */ }
+  }catch(e){ /* not available here -> fall through */ }
+  try{
+    if(window.localStorage){
+      const raw = window.localStorage.getItem(SAVE_KEY);
+      if(raw) return mergeDefaults(defaultState(), JSON.parse(raw));
+    }
+  }catch(e){ /* fall through to defaults */ }
   return defaultState();
 }
 function isModeUnlocked(id){ return STATE.progress.unlockedModes.includes(id); }
@@ -922,13 +964,14 @@ function doMove(direction){
   if(!ACTIVE_GAME.hasWon && newMax===modeDef.unlockTile){
     setTimeout(()=>triggerWin(modeDef), 550);
   } else if(isGameOverBoard(afterBoard)){
-    setTimeout(()=>triggerGameOver(), 550);
+    showStuckModal();
   }
 
   runAchievementChecks({event:'tile', tileValue:newMax});
   runAchievementChecks({event:'move'});
 
   STATE.savedGame=serializeActiveGame();
+  persistNow();
   scheduleSave();
 }
 
@@ -940,11 +983,12 @@ function doUndo(){
   ACTIVE_GAME.undosLeft--;
   STATE.stats.undoUsage++;
   playSound('click');
-  queueToast('Undo used');
+  queueToast('Undo used — score reverted');
   renderBoardFull();
   updateHudNumbers();
   render();
   STATE.savedGame=serializeActiveGame();
+  persistNow();
   scheduleSave();
 }
 function doShuffle(){
@@ -1015,6 +1059,24 @@ function triggerWin(modeDef){
     ]
   });
 }
+function showStuckModal(){
+  if(!ACTIVE_GAME) return;
+  const actions = [];
+  if(ACTIVE_GAME.undosLeft>0) actions.push({label:`↶ Undo (${ACTIVE_GAME.undosLeft} left)`, kind:'primary', onClick:()=>{ closeModal(); doUndo(); }});
+  else actions.push({label:'+ Undo — Watch Ad', kind:'primary', onClick:()=>{ closeModal(); requestRewardedAd('undo'); }});
+  
+  if(ACTIVE_GAME.shufflesLeft>0) actions.push({label:`Shuffle (${ACTIVE_GAME.shufflesLeft} left)`, kind:'primary', onClick:()=>{ closeModal(); doShuffle(); }});
+  else actions.push({label:'+ Shuffle — Watch Ad', kind:'primary', onClick:()=>{ closeModal(); requestRewardedAd('shuffle'); }});
+  
+  actions.push({label:'Give Up & End Game', kind:'danger', onClick:()=>{ closeModal(); triggerGameOver(); }});
+  
+  showModal({
+    icon:'bulb', grad:'amber', title:'No Moves Left',
+    body:'Your board is stuck. Use Undo or Shuffle to continue, or watch an ad for a free boost.',
+    actions
+  });
+}
+
 function triggerGameOver(){
   if(!ACTIVE_GAME || ACTIVE_GAME.isOver) return;
   ACTIVE_GAME.isOver=true;
@@ -1212,11 +1274,8 @@ function render(){
   }
   activateBannerSlots();
 }
-function withNav(html){ return html + bottomNavHtml(); }
-function bottomNavHtml(){
-  const items=[{id:'home',ic:'home',lbl:'Home'},{id:'modes',ic:'target',lbl:'Modes'},{id:'achievements',ic:'trophy',lbl:'Awards'},{id:'menu',ic:'menu',lbl:'Menu'},{id:'settings',ic:'sliders',lbl:'Settings'}];
-  return `<div class="bottom-nav">${items.map(i=>`<button class="nav-item ${CURRENT_SCREEN===i.id?'active':''}" onclick="nav('${i.id}')">${flatIcon(i.ic,21)}<span class="lbl">${i.lbl}</span></button>`).join('')}</div>`;
-}
+function withNav(html){ return html; }
+function bottomNavHtml(){ return ''; }
 
 function renderSplash(){
   return `<div class="splash-screen">
@@ -1245,29 +1304,19 @@ function continueMiniBoard(){
   return Array.from({length:16}).map((_,i)=>`<div style="opacity:${(i/16)<ratio?0.9:0.12}"></div>`).join('');
 }
 function renderHome(){
-  const p=STATE.profile;
-  const xpNeed=xpForLevel(p.level);
-  const xpPct=Math.min(100, Math.round(p.xp/xpNeed*100));
   const hasSaved = STATE.savedGame && !STATE.savedGame.isOver;
-
-  return withNav(`<div class="screen">
-    <div class="hero-row">
+  return withNav(`<div class="screen" style="justify-content:center; gap:18px;">
+    <div style="text-align:center; margin-bottom:6px;">
       <div class="wordmark">2048 <span>PRO MAX</span></div>
-      <div class="title-badge" onclick="nav('menu')"><div class="lvl-chip">${p.level}</div><div style="font-size:.74rem;font-weight:700;">${p.title}</div></div>
     </div>
 
-    <div class="card" style="margin-bottom:16px;">
-      <div class="dash-xp-row"><span>Level ${p.level} — ${p.title}</span><span>${p.xp}/${xpNeed} XP</span></div>
-      <div class="progress-track"><div class="progress-fill" style="width:${xpPct}%"></div></div>
-    </div>
-
-    ${hasSaved?`<div class="card continue-card" style="margin-bottom:14px;" onclick="resumeGame()">
+    ${hasSaved?`<div class="card continue-card" onclick="resumeGame()">
       <div class="continue-board-mini">${continueMiniBoard()}</div>
       <div style="flex:1;"><div style="font-weight:800;">Continue Game</div><div style="font-size:.76rem;color:var(--text-secondary);">${modeLabel(STATE.savedGame.mode)} · Score ${STATE.savedGame.score.toLocaleString()}</div></div>
       <div class="icon-btn" style="pointer-events:none;">${flatIcon('play',16)}</div>
     </div>`:''}
 
-    <button class="btn btn-primary btn-block" style="margin-bottom:12px;" onclick="${hasSaved?'resumeGame()':"nav('modes')"}">${flatIcon('play',15)} ${hasSaved?'Continue Playing':'Play'}</button>
+    <button class="btn btn-primary btn-block" onclick="${hasSaved?'resumeGame()':"nav('modes')"}">${flatIcon('play',15)} ${hasSaved?'Continue Playing':'Play'}</button>
     <button class="btn btn-secondary btn-block" onclick="nav('menu')">${flatIcon('menu',15)} Menu</button>
     ${renderBannerSlot('home')}
   </div>`);
@@ -1280,18 +1329,24 @@ function renderMenu(){
     {id:'achievements', ic:'trophy', grad:'gold', lbl:'Achievements', sub:unlockedCount+'/'+ACHIEVEMENTS.length+' unlocked'},
     {id:'challenges', ic:'calendar', grad:'teal', lbl:'Challenges', sub:'Daily & weekly'},
     {id:'stats', ic:'chart', grad:'blue', lbl:'Statistics', sub:STATE.stats.gamesPlayed+' games played'},
-    {id:'themes', ic:'palette', grad:'purple', lbl:'Themes & Skins', sub:STATE.progress.unlockedThemes.length+'/'+THEMES.length+' themes unlocked'},
+    {id:'themes', ic:'palette', grad:'purple', lbl:'Themes & Skins', sub:STATE.progress.unlockedThemes.length+'/'+THEMES.length+' unlocked'},
     {id:'settings', ic:'sliders', grad:'slate', lbl:'Settings', sub:'Sound, haptics, display'},
     {id:'about', ic:'info', grad:'blue', lbl:'About', sub:'Version & info'},
   ];
-  return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Menu</h1></div>
-    <div class="menu-list">
-      ${items.map(i=>`<button class="menu-row" onclick="nav('${i.id}')">
-        ${badge(i.ic, i.grad, 'ibadge-md')}
-        <div class="menu-row-body"><div class="menu-row-lbl">${i.lbl}</div><div class="menu-row-sub">${i.sub}</div></div>
-        <div class="menu-row-chev">${flatIcon('chevronRight',20)}</div>
-      </button>`).join('')}
+  return withNav(`<div class="screen" style="justify-content:center; gap:0;">
+    <div style="width:100%;">
+      <div class="wrap-header" style="justify-content:space-between; margin-bottom:16px;">
+        <button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button>
+        <h1 class="page-title" style="margin:0;">Menu</h1>
+        <div style="width:36px;"></div>
+      </div>
+      <div class="menu-list">
+        ${items.map(i=>`<button class="menu-row" onclick="nav('${i.id}')">
+          ${badge(i.ic, i.grad, 'ibadge-md')}
+          <div class="menu-row-body"><div class="menu-row-lbl">${i.lbl}</div><div class="menu-row-sub">${i.sub}</div></div>
+          <div class="menu-row-chev">${flatIcon('chevronRight',20)}</div>
+        </button>`).join('')}
+      </div>
     </div>
     ${renderBannerSlot('menu')}
   </div>`);
@@ -1304,46 +1359,37 @@ function renderModes(){
     return `<div class="mode-card ${unlocked?'':'locked'}" ${unlocked?`onclick="startGame('${m.id}')"`:''}>
       <div class="mode-top">
         <div class="mode-size-badge">${m.size}×${m.size}</div>
-        <div class="mode-info"><h3>${m.name}</h3><p>${unlocked? m.desc : 'Reach '+m.requiresTile+' in '+reqMode.name}</p></div>
-        ${unlocked?`<span style="color:var(--accent);">${flatIcon('chevronRight',22)}</span>`:`<span class="lock-ic">${flatIcon('lock',18)}</span>`}
+        <div class="mode-info"><h3>${m.name}</h3><p>${unlocked? m.desc : 'Reach '+m.requiresTile+'<br>in '+reqMode.name}</p></div>
       </div>
     </div>`;
   }).join('');
-  const comingSoon=COMING_SOON_MODES.map(m=>`<div class="mode-card locked"><div class="mode-top">
-      <div class="mode-size-badge">${m.size}×${m.size}</div>
-      <div class="mode-info"><h3>${m.name}</h3><p>${m.desc}</p></div>
-      <span class="pill pill-soon">Coming Soon</span></div></div>`).join('');
-  const future=FUTURE_LOCKED_MODES.map(name=>`<div class="mode-card locked"><div class="mode-top">
-      <div class="mode-size-badge">?</div>
-      <div class="mode-info"><h3>${name}</h3><p>Prepared for a future update</p></div>
-      <span class="lock-ic">${flatIcon('lock',18)}</span></div></div>`).join('');
 
-  return withNav(`<div class="screen">
-    <div class="wrap-header"><button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">Game Modes</h1></div>
-    ${rows}
-    <div class="mono-label" style="margin:18px 0 8px;">Reserved For Future Updates</div>
-    ${comingSoon}${future}
+  return withNav(`<div class="screen" style="flex-direction:column; align-items:center;">
+    <div style="width:100%; text-align:center; margin-bottom:6px;">
+      <h1 class="page-title">Game Modes</h1>
+    </div>
+    <div class="mode-grid">${rows}</div>
   </div>`);
 }
 
 function renderGame(){
-  if(!ACTIVE_GAME) return withNav(`<div class="screen"><p>No active game yet.</p><button class="btn btn-primary" onclick="nav('modes')">Choose a Mode</button></div>`);
+  if(!ACTIVE_GAME) return withNav(`<div class="screen" style="justify-content:center;align-items:center;"><p>No active game yet.</p><button class="btn btn-primary" onclick="nav('modes')">Choose a Mode</button></div>`);
   const mode=MODES.find(m=>m.id===ACTIVE_GAME.mode);
   const p=STATE.profile;
   const xpNeed=xpForLevel(p.level);
   const xpPct=Math.min(100, Math.round(p.xp/xpNeed*100));
-  return withNav(`<div class="screen">
+  return withNav(`<div class="screen game-screen">
     <div class="game-topbar">
       <button class="icon-btn" onclick="nav('home')">${flatIcon('chevronLeft',20)}</button>
-      <div class="mode-chip">${mode.name} ${mode.size}×${mode.size}</div>
-      <button class="icon-btn" style="margin-left:auto;" onclick="doRestart()" title="Restart">${flatIcon('restart',18)}</button>
+      <div class="mode-chip">${mode.name} · ${mode.size}×${mode.size}</div>
+      <div style="width:36px;"></div>
     </div>
     <div class="score-row">
-      <div class="score-block"><div class="k">Score</div><div class="v num" id="hud-score">${ACTIVE_GAME.score.toLocaleString()}</div></div>
-      <div class="score-block"><div class="k">Best</div><div class="v num" id="hud-best">${STATE.stats.highestScore.toLocaleString()}</div></div>
-      <div class="score-block"><div class="k">Level</div><div class="v num" id="hud-level">${p.level}</div></div>
-      <div class="xp-mini"><div class="progress-track"><div class="progress-fill" id="hud-xp-fill" style="width:${xpPct}%"></div></div></div>
+      <div class="score-block"><div class="k">SCORE</div><div class="v num" id="hud-score">${ACTIVE_GAME.score.toLocaleString()}</div></div>
+      <div class="score-block"><div class="k">BEST</div><div class="v num" id="hud-best">${STATE.stats.highestScore.toLocaleString()}</div></div>
+      <div class="score-block"><div class="k">LEVEL</div><div class="v num" id="hud-level">${p.level}</div></div>
     </div>
+    <div class="xp-mini"><div class="progress-track"><div class="progress-fill" id="hud-xp-fill" style="width:${xpPct}%"></div></div></div>
     <div class="action-bar">
       <button class="action-btn" onclick="doUndo()" ${ACTIVE_GAME.undosLeft<=0?'disabled':''}>${flatIcon('undo',19)}<span class="lbl">Undo</span>${ACTIVE_GAME.undosLeft>0?`<span class="count">${ACTIVE_GAME.undosLeft}</span>`:''}</button>
       <button class="action-btn" onclick="doShuffle()" ${ACTIVE_GAME.shufflesLeft<=0?'disabled':''}>${flatIcon('shuffle',19)}<span class="lbl">Shuffle</span>${ACTIVE_GAME.shufflesLeft>0?`<span class="count">${ACTIVE_GAME.shufflesLeft}</span>`:''}</button>
@@ -1991,6 +2037,9 @@ async function boot(){
   document.addEventListener('touchmove', e=>{ if(e.scale && e.scale!==1) e.preventDefault(); }, {passive:false});
 }
 window.addEventListener('DOMContentLoaded', boot);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden' && STATE) persistNow(); });
+window.addEventListener('pagehide', ()=>{ if(STATE) persistNow(); });
+window.addEventListener('blur', ()=>{ if(STATE) persistNow(); });
 </script>
 </body>
 </html>
