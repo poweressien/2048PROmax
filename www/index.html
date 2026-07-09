@@ -344,14 +344,63 @@ button{font-family:inherit; color:inherit;}
 @keyframes tileGlow{ 0%{ box-shadow:0 0 0 rgba(255,255,255,0);} 30%{ box-shadow:0 0 34px 8px var(--glow,var(--accent));} 100%{ box-shadow:0 3px 8px rgba(0,0,0,.18);} }
 .board.shake{ animation:boardShake .4s ease; }
 @keyframes boardShake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-7px);} 40%,60%{transform:translateX(7px);} }
-.board-msg-layer{ position:absolute; left:0; right:0; top:-46px; display:flex; justify-content:center; pointer-events:none; }
-.merge-msg{
-  background:var(--surface); border:1px solid var(--accent); color:var(--accent); font-weight:800; font-size:.85rem;
-  padding:7px 16px; border-radius:99px; box-shadow:var(--shadow); animation:msgFloat calc(1400ms*var(--anim-mult)) ease forwards;
-  white-space:nowrap; display:flex; align-items:center; gap:6px;
+.board-msg-layer{
+  position:absolute; left:0; right:0; top:0; bottom:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:10;
 }
-@keyframes msgFloat{ 0%{opacity:0; transform:translateY(6px) scale(.9);} 15%{opacity:1; transform:translateY(0) scale(1);} 80%{opacity:1;} 100%{opacity:0; transform:translateY(-14px);} }
-.cheer-msg{ background:var(--surface-2); color:var(--text-secondary); border:none; }
+.merge-msg{
+  position:absolute;
+  font-size:2.4rem; font-weight:900; letter-spacing:-.02em; white-space:nowrap;
+  color:#f3c876;
+  text-shadow:
+    0 1px 0 #c47d0a,
+    0 2px 0 #a86800,
+    0 3px 0 #8a5400,
+    0 5px 18px rgba(0,0,0,.7),
+    0 0 40px rgba(243,200,118,.45);
+  animation: msg3d calc(1300ms * var(--anim-mult)) cubic-bezier(.22,1,.36,1) forwards;
+  transform-origin: center center;
+  -webkit-text-stroke: 1px rgba(0,0,0,.25);
+}
+.cheer-msg{
+  font-size:1.5rem;
+  color:#fff;
+  text-shadow:
+    0 1px 0 #555,
+    0 2px 0 #333,
+    0 3px 10px rgba(0,0,0,.6),
+    0 0 30px rgba(255,255,255,.15);
+  -webkit-text-stroke: 0.5px rgba(0,0,0,.2);
+}
+/* Tier 6+ (LEGENDARY and above) get bigger and more epic */
+.merge-msg.tier-high{
+  font-size:3rem;
+  text-shadow:
+    0 1px 0 #e07b00,
+    0 2px 0 #c06500,
+    0 3px 0 #9a4f00,
+    0 4px 0 #7a3d00,
+    0 8px 28px rgba(0,0,0,.8),
+    0 0 60px rgba(255,160,20,.6);
+  animation: msg3d-big calc(1400ms * var(--anim-mult)) cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes msg3d{
+  0%   { opacity:0; transform: translateY(18px) scale(.55); }
+  12%  { opacity:1; transform: translateY(-6px) scale(1.12); }
+  22%  { transform: translateY(2px) scale(.97); }
+  32%  { transform: translateY(0) scale(1); }
+  70%  { opacity:1; transform: translateY(0) scale(1); }
+  100% { opacity:0; transform: translateY(-28px) scale(.9); }
+}
+@keyframes msg3d-big{
+  0%   { opacity:0; transform: scale(.4) rotate(-4deg); }
+  10%  { opacity:1; transform: scale(1.2) rotate(1.5deg); }
+  18%  { transform: scale(.95) rotate(-.5deg); }
+  28%  { transform: scale(1.02) rotate(0); }
+  70%  { opacity:1; transform: scale(1) rotate(0); }
+  100% { opacity:0; transform: translateY(-34px) scale(.88); }
+}
 
 /* ---------- modals ---------- */
 .modal-overlay{
@@ -1648,22 +1697,54 @@ function renderThemes(){
 
 function getByPath(obj,path){ return path.split('.').reduce((o,k)=>o&&o[k], obj); }
 function setByPath(obj,path,val){ const parts=path.split('.'); let o=obj; for(let i=0;i<parts.length-1;i++) o=o[parts[i]]; o[parts[parts.length-1]]=val; }
-function toggleSetting(path){ setByPath(STATE.settings, path, !getByPath(STATE.settings,path)); scheduleSave(); render(); }
-function setSetting(path,val){ setByPath(STATE.settings, path, val); scheduleSave(); if(path!=='sound.volume') render(); }
+function toggleSetting(path, el){
+  const newVal = !getByPath(STATE.settings, path);
+  setByPath(STATE.settings, path, newVal);
+  if(el){ el.classList.toggle('on', newVal); }
+  scheduleSave();
+  if(path==='display.mode'){ applyThemeToDOM(); }
+}
+function setSetting(path,val){
+  setByPath(STATE.settings, path, val);
+  scheduleSave();
+  if(path==='sound.volume') return;
+  if(path==='display.mode'){ applyThemeToDOM(); render(); return; }
+  if(path==='display.animSpeed'){ applyAnimSpeed(); }
+  // Update matching seg-control buttons in place — no screen flash
+  const group = path==='haptics.intensity' ? 'haptics-intensity' : null;
+  if(group){
+    document.querySelectorAll(`.seg-btn[data-group="${group}"]`).forEach(b=>{
+      b.classList.toggle('active', b.getAttribute('data-val')===String(val));
+    });
+  }
+}
 function setDisplayMode(mode){
   STATE.settings.display.mode=mode;
   if(mode==='dark') STATE.progress.selectedTheme='dark';
   else if(mode==='light') STATE.progress.selectedTheme='light';
   else STATE.progress.selectedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark':'light';
-  applyThemeToDOM(); scheduleSave(); render();
+  applyThemeToDOM();
+  scheduleSave();
+  // Only update the seg buttons in place — no blink
+  document.querySelectorAll('.seg-btn[data-group="display-mode"]').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-val')===mode);
+  });
 }
 function applyThemeToDOM(){ document.body.setAttribute('data-theme', STATE.progress.selectedTheme); }
-function setAnimSpeed(v){ STATE.settings.display.animSpeed=v; applyAnimSpeed(); scheduleSave(); render(); }
+function setAnimSpeed(v){
+  STATE.settings.display.animSpeed=v;
+  applyAnimSpeed();
+  scheduleSave();
+  // Update seg buttons in place
+  document.querySelectorAll('.seg-btn[data-group="anim-speed"]').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-val')===v);
+  });
+}
 function applyAnimSpeed(){
   const mult = STATE.settings.display.animSpeed==='slow'?1.6 : STATE.settings.display.animSpeed==='fast'?0.55 : 1;
   document.documentElement.style.setProperty('--anim-mult', mult);
 }
-function toggleRow(label,path,value){ return `<div class="toggle-row"><span class="lbl">${label}</span><div class="switch ${value?'on':''}" onclick="toggleSetting('${path}')"><div class="knob"></div></div></div>`; }
+function toggleRow(label,path,value){ return `<div class="toggle-row"><span class="lbl">${label}</span><div class="switch ${value?'on':''}" onclick="toggleSetting('${path}',this)"><div class="knob"></div></div></div>`; }
 let versionTapCount=0, versionTapTimer=null;
 function tapVersion(){
   versionTapCount++;
@@ -1712,13 +1793,13 @@ function renderSettings(){
     <div class="settings-section"><h3>Haptics</h3><div class="card">
       ${toggleRow('Vibration','haptics.enabled',st.haptics.enabled)}
       <div style="padding:12px 4px 4px;"><div class="mono-label" style="margin-bottom:8px;">Intensity</div>
-      <div class="seg-control">${['light','medium','strong'].map(x=>`<button class="seg-btn ${st.haptics.intensity===x?'active':''}" onclick="setSetting('haptics.intensity','${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
+      <div class="seg-control">${['light','medium','strong'].map(x=>`<button class="seg-btn ${st.haptics.intensity===x?'active':''}" data-group="haptics-intensity" data-val="${x}" onclick="setSetting('haptics.intensity','${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
     </div></div>
     <div class="settings-section"><h3>Display</h3><div class="card">
       <div style="padding:4px;"><div class="mono-label" style="margin-bottom:8px;">Theme Mode</div>
-      <div class="seg-control">${['light','dark','auto'].map(x=>`<button class="seg-btn ${st.display.mode===x?'active':''}" onclick="setDisplayMode('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
+      <div class="seg-control">${['light','dark','auto'].map(x=>`<button class="seg-btn ${st.display.mode===x?'active':''}" data-group="display-mode" data-val="${x}" onclick="setDisplayMode('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
       <div style="padding:12px 4px 4px;"><div class="mono-label" style="margin-bottom:8px;">Animation Speed</div>
-      <div class="seg-control">${['slow','normal','fast'].map(x=>`<button class="seg-btn ${st.display.animSpeed===x?'active':''}" onclick="setAnimSpeed('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
+      <div class="seg-control">${['slow','normal','fast'].map(x=>`<button class="seg-btn ${st.display.animSpeed===x?'active':''}" data-group="anim-speed" data-val="${x}" onclick="setAnimSpeed('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join('')}</div></div>
     </div></div>
     <div class="settings-section"><h3>Data</h3><div class="card">
       <button class="btn btn-secondary btn-block" style="margin-bottom:8px;" onclick="resetStatistics()">Reset Statistics</button>
@@ -1774,14 +1855,18 @@ function processToastQueue(){
   setTimeout(()=>{ el.remove(); toastShowing=false; processToastQueue(); }, 3000*mult);
 }
 
-function showBoardMessage(text, isCheer, iconName){
+function showBoardMessage(text, isCheer, tier){
   const layer=document.getElementById('board-msg-layer');
   if(!layer) return;
+  // Only one message at a time — clear any existing
+  while(layer.firstChild) layer.firstChild.remove();
   const el=document.createElement('div');
-  el.className='merge-msg'+(isCheer?' cheer-msg':'');
-  el.innerHTML=(iconName?flatIcon(iconName,15):'')+`<span>${text}</span>`;
+  const isHigh = !isCheer && tier>=6;
+  el.className='merge-msg'+(isCheer?' cheer-msg':'')+(isHigh?' tier-high':'');
+  el.textContent=text;
   layer.appendChild(el);
-  setTimeout(()=>{ el.remove(); }, 1500);
+  const duration = isCheer ? 1200 : isHigh ? 1500 : 1300;
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, Math.round(duration * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anim-mult'))||1)));
 }
 function screenShake(){
   const b=document.getElementById('game-board');
@@ -1826,14 +1911,14 @@ function confettiBurst(count){
   }
 }
 function triggerExplosionAt(tileEl, tier, value){
-  showBoardMessage(tier.msg, false, tier.tier>=6?'flame':'bolt');
+  showBoardMessage(tier.msg, false, tier.tier);
   screenShake();
   burstParticlesFromEl(tileEl, tier.tier);
   playSound('explosion');
   vibrateDevice(tier.tier>=6?'strong':'medium');
   if(tier.tier>=6) confettiBurst(Math.min(90, 18*tier.tier));
 }
-function triggerCheer(){ showBoardMessage(CHEER_MESSAGES[Math.floor(Math.random()*CHEER_MESSAGES.length)], true); }
+function triggerCheer(){ showBoardMessage(CHEER_MESSAGES[Math.floor(Math.random()*CHEER_MESSAGES.length)], true, 0); }
 
 function showHintArrow(direction){
   const rotate={up:0,right:90,down:180,left:270};
