@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">2048PROmax</string>
-    <string name="title_activity_main">2048PROmax</string>
-    <string name="package_name">com.poweressien.2048PROmax</string>
-    <string name="custom_url_scheme">com.poweressien.2048PROmax</string>
+    <string name="app_name">2048 PRO MAX</string>
+    <string name="title_activity_main">2048 PRO MAX</string>
+    <string name="package_name">com.poweressien.promax2048</string>
+    <string name="custom_url_scheme">com.poweressien.promax2048</string>
 </resources>

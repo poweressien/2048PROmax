@@ -1,4 +1,11 @@
 {
+  "name": "2048-pro-max",
+  "version": "1.0.0",
+  "description": "2048 PRO MAX — premium puzzle game",
+  "scripts": {
+    "sync": "npx cap copy android && npx cap sync android",
+    "open": "npx cap open android"
+  },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",

@@ -1,5 +1,16 @@
 {
-  "appId": "com.poweressien.oko",
-  "appName": "2048PROmax",
-  "webDir": "www"
+  "appId": "com.poweressien.promax2048",
+  "appName": "2048 PRO MAX",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#12151a",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2200,
+      "backgroundColor": "#12151a",
+      "showSpinner": false
+    }
+  }
 }

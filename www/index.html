@@ -529,15 +529,15 @@ const SAVE_KEY = 'save-v1';
 // 1) Regular AdSense account -> gives you the publisher ID + banner ad-unit slot IDs (drives the display banners below).
 // 2) Google "H5 Games Ads" program (separate application, same underlying AdSense account) -> unlocks real rewarded video via the Ad Placement API used in AdService below.
 const AD_CONFIG = {
-  adsensePublisherId: 'ca-pub-XXXXXXXXXXXXXXXX',   // TODO: your real AdSense publisher ID
+  adsensePublisherId: 'ca-pub-6016968878067052',
   bannerSlots: {
-    home: '0000000000',
-    menu: '0000000000',
-    stats: '0000000000',
-    achievements: '0000000000',
+    home:         '1822122200',
+    menu:         '1822122200',
+    stats:        '1822122200',
+    achievements: '1822122200',
   },
+  rewardedUnitId: 'ca-app-pub-6016968878067052/1195848935',
   rewardedAdFrequencyHint: '30s',
-  // No daily cap — ads are limitless
 };
 function adsConfigured(){ return !!AD_CONFIG.adsensePublisherId && AD_CONFIG.adsensePublisherId.indexOf('XXXX')===-1; }
 function bannerConfigured(slot){ return adsConfigured() && AD_CONFIG.bannerSlots[slot] && AD_CONFIG.bannerSlots[slot].indexOf('0000000000')===-1; }
@@ -879,7 +879,7 @@ let TILE_ID_SEQ=1;
 function makeTile(value){ return {id:'t'+(TILE_ID_SEQ++), value}; }
 function emptyGridTiles(size){ return Array.from({length:size},()=>Array(size).fill(null)); }
 function gridToBoard(g){ return g.map(row=>row.map(t=>t?t.value:0)); }
-function cloneGrid(g){ return g.map(row=>row.map(t=>t?{...t}:null)); }
+function cloneGrid(g){ return g.map(row=>row.map(t=>t?{id:t.id,value:t.value}:null)); }
 function countEmpty(board){ let c=0; board.forEach(row=>row.forEach(v=>{ if(v===0) c++; })); return c; }
 function maxTileOf(board){ let m=0; board.forEach(row=>row.forEach(v=>{ if(v>m) m=v; })); return m; }
 function hasEmptyCell(board){ return board.some(row=>row.some(v=>v===0)); }
@@ -971,7 +971,9 @@ function serializeActiveGame(){ return ACTIVE_GAME ? JSON.parse(JSON.stringify(A
 function startGame(modeId){
   if(ACTIVE_GAME && !ACTIVE_GAME.finalized) finalizeSession(ACTIVE_GAME.hasWon);
   stopTicking();
+  TILE_ID_SEQ=1; // reset counter for a fresh game
   ACTIVE_GAME=newGameStateGrid(modeId);
+  syncTileIdSeq(ACTIVE_GAME.grid); // ensure IDs are consistent from the start
   STATE.stats.gamesPlayed++;
   STATE.stats.modeCounts[modeId]=(STATE.stats.modeCounts[modeId]||0)+1;
   STATE.stats.perMode[modeId].gamesPlayed++;
@@ -982,9 +984,22 @@ function startGame(modeId){
   nav('game');
   startTicking();
 }
+function syncTileIdSeq(grid){
+  // After loading a saved game, scan every tile ID in the grid and push
+  // TILE_ID_SEQ above the highest existing ID so new tiles never collide.
+  let max=0;
+  grid.forEach(row=>row.forEach(t=>{
+    if(t && t.id){
+      const n=parseInt(t.id.replace('t',''),10);
+      if(!isNaN(n) && n>max) max=n;
+    }
+  }));
+  if(max>=TILE_ID_SEQ) TILE_ID_SEQ=max+1;
+}
 function resumeGame(){
   if(STATE.savedGame && !STATE.savedGame.isOver){
     ACTIVE_GAME=STATE.savedGame;
+    syncTileIdSeq(ACTIVE_GAME.grid);  // CRITICAL: prevent ID collision
     nav('game');
     startTicking();
   } else nav('modes');
@@ -1041,6 +1056,9 @@ function doMove(direction){
 
   updateChallengeProgress({merges, maxTile:newMax, score:ACTIVE_GAME.score});
   animateMove({mergedValues, spawnedPos});
+  // Immediately clear mergedFromId so the NEXT move's animateMove never
+  // sees stale references — moves can happen faster than the 130ms timeout
+  ACTIVE_GAME.grid.forEach(row=>row.forEach(t=>{ if(t) delete t.mergedFromId; }));
 
   const modeDef=MODES.find(m=>m.id===ACTIVE_GAME.mode);
   if(!ACTIVE_GAME.hasWon && newMax===modeDef.unlockTile){
@@ -1064,11 +1082,11 @@ function doUndo(){
   ACTIVE_GAME.prevSnapshot=null;
   ACTIVE_GAME.undosLeft--;
   STATE.stats.undoUsage++;
+  // Clear any stale mergedFromIds from the restored grid
+  ACTIVE_GAME.grid.forEach(row=>row.forEach(t=>{ if(t) delete t.mergedFromId; }));
   playSound('click');
   queueToast('Undo used — score reverted');
-  renderBoardFull();
-  updateHudNumbers();
-  render();
+  render(); // render() → afterGameRender() → renderBoardFull() — one clean pass
   STATE.savedGame=serializeActiveGame();
   persistNow();
   scheduleSave();
@@ -1494,9 +1512,12 @@ function renderGame(){
 }
 
 // ---- Board tile rendering / animation ----
+let _lastBoardWidth=320;
 function getBoardMetrics(size){
   const layer=document.getElementById('tile-layer');
-  const w=layer? layer.clientWidth : 320;
+  let w = layer ? layer.clientWidth : _lastBoardWidth;
+  if(w <= 0) w = _lastBoardWidth; // guard against 0 during reflow/rapid moves
+  if(w > 0) _lastBoardWidth = w;  // cache last valid value
   const gap=8;
   return {cellSize:(w-gap*(size-1))/size, gap};
 }
@@ -1536,13 +1557,19 @@ function animateMove({mergedValues, spawnedPos}){
   const layer=document.getElementById('tile-layer');
   if(!layer){ return; }
   const metrics=getBoardMetrics(mode.size);
+
+  // Build the set of IDs that should exist in the DOM for this animation:
+  // live tiles + consumed tiles (which slide to their merge target before being removed)
+  const liveIds=new Set();
+  ACTIVE_GAME.grid.forEach(row=>row.forEach((t,c)=>{ if(t){ liveIds.add(t.id); if(t.mergedFromId) liveIds.add(t.mergedFromId); } }));
+  // Upfront sweep: remove any DOM tiles that are not live AND not consumed by this move.
+  // This clears ghost tiles left over from previous rapid-move cycles.
+  layer.querySelectorAll('.tile').forEach(el=>{ if(!liveIds.has(el.dataset.id)) el.remove(); });
+
   const existing={};
   layer.querySelectorAll('.tile').forEach(el=>{ existing[el.dataset.id]=el; });
 
   const destById={};
-  ACTIVE_GAME.grid.forEach((row,r)=>row.forEach(t=>{ if(t) destById[t.id]={r, c:row.indexOf===undefined?null:null}; }));
-  // (recompute properly with column index)
-  Object.keys(destById).forEach(k=>delete destById[k]);
   ACTIVE_GAME.grid.forEach((row,r)=>row.forEach((t,c)=>{ if(t) destById[t.id]={r,c,value:t.value,mergedFromId:t.mergedFromId}; }));
 
   Object.keys(destById).forEach(id=>{
@@ -1555,6 +1582,10 @@ function animateMove({mergedValues, spawnedPos}){
   const mult=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anim-mult'))||1;
   const dur=130*mult;
   setTimeout(()=>{
+    // Re-query layer — doUndo/doShuffle may have replaced it during the timeout
+    const freshLayer=document.getElementById('tile-layer');
+    if(!freshLayer) return;
+
     let hadBigExplosion=false;
     Object.keys(destById).forEach(id=>{
       const info=destById[id];
@@ -1570,12 +1601,29 @@ function animateMove({mergedValues, spawnedPos}){
         }
       }
     });
+
+    // Bug 2 fix: clear mergedFromId from every tile in the live grid so stale
+    // references never cause the next animateMove to wrongly target new tiles.
+    if(ACTIVE_GAME) ACTIVE_GAME.grid.forEach(row=>row.forEach(t=>{ if(t) delete t.mergedFromId; }));
+
     if(spawnedPos){
       const el=tileElFor({id:spawnedPos.id,value:spawnedPos.value}, spawnedPos.r, spawnedPos.c, metrics);
-      layer.appendChild(el);
+      freshLayer.appendChild(el);
     }
     if(!hadBigExplosion && mergedValues.length>0 && Math.random()<0.15) triggerCheer();
     else if(mergedValues.length===0 && Math.random()<0.05) triggerCheer();
+
+    // Ghost sweep: remove any DOM tile whose ID is no longer in the live grid.
+    // This catches tiles spawned async by an earlier move that were already merged
+    // by a subsequent rapid move before the spawn DOM insertion happened.
+    if(ACTIVE_GAME){
+      const live=new Set();
+      ACTIVE_GAME.grid.forEach(row=>row.forEach(t=>{ if(t) live.add(t.id); }));
+      freshLayer.querySelectorAll('.tile').forEach(el=>{
+        if(!live.has(el.dataset.id)) el.remove();
+      });
+    }
+
     updateHudNumbers();
   }, dur+10);
 }
@@ -1878,9 +1926,10 @@ function renderAbout(){
     <div class="wrap-header"><button class="icon-btn" onclick="nav('menu')">${flatIcon('chevronLeft',20)}</button><h1 class="page-title">About</h1></div>
     <div class="card">
       <div style="font-weight:900;font-size:1.1rem;margin-bottom:6px;">2048 PRO MAX</div>
-      <p style="color:var(--text-secondary);font-size:.85rem;line-height:1.5;">A premium, fully offline puzzle game built around the classic 2048 merge mechanic — four board sizes, a full XP and achievement system, daily and weekly challenges, streaks, eight themes, and seven tile skins. No backend, no accounts, no ads — nothing ever leaves your device.</p>
+      <p style="color:var(--text-secondary);font-size:.85rem;line-height:1.5;">A premium, fully offline puzzle game built around the classic 2048 merge mechanic — four board sizes, a full XP and achievement system, daily and weekly challenges, streaks, eight themes, and seven tile skins. No backend, no accounts, nothing ever leaves your device.</p>
       <div class="divider"></div>
-      <div class="mono-label">Version</div><div class="num" style="margin:4px 0 14px;">1.0.0</div>
+      <div class="mono-label">Version</div><div class="num" style="margin:4px 0 14px;">1.1.0</div>
+      <div class="mono-label">Web</div><div style="margin:4px 0 14px;"><a href="https://two048promax.onrender.com" style="color:var(--accent);">two048promax.onrender.com</a></div>
       <div class="mono-label">Built With</div><div style="margin-top:4px;">HTML · CSS · JavaScript — zero external dependencies</div>
     </div>
   </div>`);
@@ -2099,10 +2148,11 @@ function vibrateDevice(intensity){
   try{ navigator.vibrate(ms); }catch(e){}
 }
 
-// ============================== ADS (banner via AdSense, rewarded via Google H5 Games Ads Ad Placement API) ==============================
+// ============================== ADS (AdMob — banner + rewarded via Ad Placement API) ==============================
 function initAds(){
-  if(!adsConfigured()) return; // stays in placeholder/simulated mode until real IDs are configured above
+  if(!adsConfigured()) return;
   try{
+    // Load AdMob / AdSense script
     const s=document.createElement('script');
     s.async=true;
     s.setAttribute('data-ad-frequency-hint', AD_CONFIG.rewardedAdFrequencyHint);
@@ -2110,22 +2160,32 @@ function initAds(){
     s.crossOrigin='anonymous';
     document.head.appendChild(s);
     window.adsbygoogle=window.adsbygoogle||[];
-    // Ad Placement API shims, per Google's H5 Games Ads integration guide
+    // Google H5 Games Ad Placement API — used for rewarded ads
     window.adBreak=window.adConfig=function(o){ window.adsbygoogle.push(o); };
-  }catch(e){ console.error('ad init failed', e); }
+    // Tell the API which app this is
+    window.adConfig({ preloadAdBreaks:'on', sound:'on' });
+  }catch(e){ console.error('AdMob init failed', e); }
 }
+
 const AdService={
   showRewarded(rewardName, onReward){
     if(adsConfigured() && window.adBreak){
       window.adBreak({
         type:'reward',
         name:rewardName,
+        adUnitId: AD_CONFIG.rewardedUnitId,   // real AdMob rewarded unit ID
         beforeReward:(showAdFn)=>{ showAdFn(); },
         adViewed:()=>{ onReward(); scheduleSave(); },
         adDismissed:()=>{ queueToast('Ad closed early — no reward given'); },
-        adBreakDone:()=>{},
+        adBreakDone:(info)=>{
+          // info.breakStatus tells you why the ad didn't show if it failed
+          if(info && info.breakStatus && info.breakStatus!=='viewed' && info.breakStatus!=='dismissed'){
+            console.warn('Ad break status:', info.breakStatus);
+          }
+        },
       });
     } else {
+      // Fallback: simulated ad for testing (fires when AdMob SDK isn't loaded yet)
       simulateRewardedAd(()=>{ onReward(); scheduleSave(); });
     }
   }
@@ -2174,9 +2234,17 @@ function openAdChooser(){
 
 function renderBannerSlot(slotKey){
   if(bannerConfigured(slotKey)){
-    return `<div class="banner-ad-wrap"><ins class="adsbygoogle" style="display:block" data-ad-client="${AD_CONFIG.adsensePublisherId}" data-ad-slot="${AD_CONFIG.bannerSlots[slotKey]}" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
+    return `<div class="banner-ad-wrap">
+      <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="${AD_CONFIG.adsensePublisherId}"
+        data-ad-slot="${AD_CONFIG.bannerSlots[slotKey]}"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+    </div>`;
   }
-  return `<div class="banner-ad-wrap banner-ad-placeholder">${flatIcon('film',15)}<span>Banner ad placeholder — connects automatically once AdSense is configured</span></div>`;
+  // Show nothing when not configured — no placeholder clutter for real users
+  return '';
 }
 function activateBannerSlots(){
   if(!adsConfigured()) return;
