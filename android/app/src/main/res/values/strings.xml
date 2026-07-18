@@ -4,4 +4,5 @@
     <string name="title_activity_main">2048 PRO MAX</string>
     <string name="package_name">com.poweressien.promax2048</string>
     <string name="custom_url_scheme">com.poweressien.promax2048</string>
+<string name="admob_app_id">ca-app-pub-6016968878067052~9172174787</string>
 </resources>
