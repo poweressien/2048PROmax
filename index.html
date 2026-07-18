@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6016968878067052"
-     crossorigin="anonymous"></script>  
 <title>2048 PRO MAX</title>
 <style>
 :root{
@@ -153,8 +151,8 @@ body{
 button{font-family:inherit; color:inherit;}
 .num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; letter-spacing:.02em; }
 .mono-label{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; text-transform:uppercase; letter-spacing:.14em; font-size:.68rem; color:var(--text-secondary); font-weight:600;}
-#app{ min-height:100vh; padding-bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.screen{ max-width:560px; margin:0 auto; padding:24px 18px; width:100%; display:flex; flex-direction:column; animation:screenIn .35s ease both; }
+#app{ min-height:100vh; min-height:100dvh; padding-top:env(safe-area-inset-top,16px); padding-bottom:env(safe-area-inset-bottom,0px); display:flex; flex-direction:column; align-items:stretch; box-sizing:border-box; }
+.screen{ max-width:560px; margin:0 auto; padding:28px 18px 32px; width:100%; flex:1; display:flex; flex-direction:column; animation:screenIn .35s ease both; box-sizing:border-box; }
 @keyframes screenIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
 /* ---------- generic components ---------- */
@@ -564,7 +562,7 @@ const TITLES = [
   {min:95, max:99999,name:'Godlike'},
 ];
 function titleForLevel(lvl){ return (TITLES.find(t=>lvl>=t.min && lvl<=t.max)||TITLES[0]).name; }
-function xpForLevel(level){ return Math.round(80*Math.pow(level,1.55)); }
+function xpForLevel(level){ return Math.round(200*Math.pow(level,1.9)); }
 function xpForMerge(value){ return Math.max(1, Math.round(Math.log2(value)*3)); }
 
 const EXPLOSION_TIERS = [
@@ -576,40 +574,65 @@ const EXPLOSION_TIERS = [
   {min:2048, max:4095,     msg:'LEGENDARY!',      tier:6},
   {min:4096, max:8191,     msg:'MONSTER MERGE',   tier:7},
   {min:8192, max:16383,    msg:'UNSTOPPABLE',      tier:8},
-  {min:16384,max:Infinity, msg:'GODLIKE',       tier:9},
+  {min:16384,max:Infinity, msg:'ABSOLUTE BEAST', tier:9},
 ];
 function explosionForValue(v){ return EXPLOSION_TIERS.find(t=>v>=t.min && v<=t.max) || null; }
 
 const CHEER_MESSAGES = [
-  { text:"Not Bad!",           sound:'cheer_boing'   },
-  { text:"Smooth Move!",       sound:'cheer_whistle' },
-  { text:"Brain Power!",       sound:'cheer_zing'    },
-  { text:"Getting Hot!",       sound:'cheer_sizzle'  },
-  { text:"Look at You Go!",    sound:'cheer_bloop'   },
-  { text:"Chef's Kiss!",       sound:'cheer_pop'     },
-  { text:"Stay Sharp!",        sound:'cheer_ping'    },
-  { text:"Oh Yeah!",           sound:'cheer_boing'   },
-  { text:"That's the Spirit!", sound:'cheer_whistle' },
-  { text:"Pure Genius!",       sound:'cheer_zing'    },
-  { text:"Don't Stop Now!",    sound:'cheer_sizzle'  },
-  { text:"Ooh, Spicy!",        sound:'cheer_pop'     },
+  { text:"Not Bad!",              sound:'cheer_boing'   },
+  { text:"Smooth Move!",          sound:'cheer_whistle' },
+  { text:"Brain Power!",          sound:'cheer_zing'    },
+  { text:"Getting Hot!",          sound:'cheer_sizzle'  },
+  { text:"Look at You Go!",       sound:'cheer_bloop'   },
+  { text:"Chef's Kiss!",          sound:'cheer_pop'     },
+  { text:"Stay Sharp!",           sound:'cheer_ping'    },
+  { text:"Oh Yeah!",              sound:'cheer_boing'   },
+  { text:"That's the Spirit!",    sound:'cheer_whistle' },
+  { text:"Pure Genius!",          sound:'cheer_zing'    },
+  { text:"Don't Stop Now!",       sound:'cheer_sizzle'  },
+  { text:"Ooh, Spicy!",           sound:'cheer_pop'     },
+  { text:"You Got This!",         sound:'cheer_ping'    },
+  { text:"Keep Grinding!",        sound:'cheer_boing'   },
+  { text:"So Clean!",             sound:'cheer_zing'    },
+];
+// Epic cheers — used when 8192+ tile is merged
+const EPIC_CHEER_MESSAGES = [
+  { text:"grandmaster💣😭",       sound:'cheer_zing'    },
+  { text:"GOAT💀",                        sound:'cheer_boing'   },
+  { text:"NO WORRY, U BAD😭🥶",  sound:'cheer_whistle' },
+  { text:"💀EKPE💀",              sound:'cheer_sizzle'  },
+  { text:"YOU TOO GOOD 😭😂",    sound:'cheer_pop'     },
+  { text:"UNTOUCHABLE!",                          sound:'cheer_zing'    },
+  { text:"W PLAYER💀",                    sound:'cheer_boing'   },
+  { text:"CERTIFIED BEAST!",                      sound:'cheer_whistle' },
 ];
 
 const DAILY_TEMPLATES = [
+  {type:'merges',    target:5,    label:t=>`Perform ${t} merges`},
+  {type:'merges',    target:10,   label:t=>`Perform ${t} merges`},
   {type:'merges',    target:20,   label:t=>`Perform ${t} merges`},
-  {type:'merges',    target:35,   label:t=>`Perform ${t} merges`},
-  {type:'reachTile', target:256, label:t=>`Reach the ${t} tile`},
-  {type:'reachTile', target:512, label:t=>`Reach the ${t} tile`},
-  {type:'winGame',   target:1,   label:t=>`Win ${t} game`},
-  {type:'playGames', target:3,   label:t=>`Play ${t} games`},
-  {type:'scoreOne',  target:2000,label:t=>`Score ${t.toLocaleString()} in one game`},
+  {type:'merges',    target:30,   label:t=>`Perform ${t} merges`},
+  {type:'reachTile', target:32,   label:t=>`Reach the ${t} tile`},
+  {type:'reachTile', target:64,   label:t=>`Reach the ${t} tile`},
+  {type:'reachTile', target:128,  label:t=>`Reach the ${t} tile`},
+  {type:'reachTile', target:256,  label:t=>`Reach the ${t} tile`},
+  {type:'reachTile', target:512,  label:t=>`Reach the ${t} tile`},
+  {type:'winGame',   target:1,    label:()=>`Win 1 game`},
+  {type:'playGames', target:1,    label:()=>`Play 1 game`},
+  {type:'playGames', target:2,    label:t=>`Play ${t} games`},
+  {type:'playGames', target:3,    label:t=>`Play ${t} games`},
+  {type:'scoreOne',  target:500,  label:t=>`Score ${t.toLocaleString()} in one game`},
+  {type:'scoreOne',  target:1000, label:t=>`Score ${t.toLocaleString()} in one game`},
 ];
 const WEEKLY_TEMPLATES = [
+  {type:'reachTile', target:512,  label:t=>`Reach the ${t} tile`},
+  {type:'reachTile', target:1024, label:t=>`Reach the ${t} tile`},
   {type:'reachTile', target:2048, label:t=>`Reach the ${t} tile`},
   {type:'reachTile', target:4096, label:t=>`Reach the ${t} tile`},
+  {type:'playGames', target:5,   label:t=>`Play ${t} games`},
   {type:'playGames', target:10,  label:t=>`Play ${t} games`},
-  {type:'playGames', target:20,  label:t=>`Play ${t} games`},
-  {type:'merges',    target:150, label:t=>`Perform ${t} merges`},
+  {type:'merges',    target:50,  label:t=>`Perform ${t} merges`},
+  {type:'merges',    target:100, label:t=>`Perform ${t} merges`},
 ];
 function seededIndex(str, mod){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31 + str.charCodeAt(i))>>>0; } return h % mod; }
 function isoWeekKey(d){
@@ -1612,8 +1635,9 @@ function animateMove({mergedValues, spawnedPos}){
       const el=tileElFor({id:spawnedPos.id,value:spawnedPos.value}, spawnedPos.r, spawnedPos.c, metrics);
       freshLayer.appendChild(el);
     }
-    if(!hadBigExplosion && mergedValues.length>0 && Math.random()<0.15) triggerCheer();
-    else if(mergedValues.length===0 && Math.random()<0.05) triggerCheer();
+    const _topMerge=mergedValues.length?Math.max(...mergedValues):0;
+    if(!hadBigExplosion && mergedValues.length>0 && Math.random()<0.15) triggerCheer(_topMerge);
+    else if(mergedValues.length===0 && Math.random()<0.05) triggerCheer(0);
 
     // Ghost sweep: remove any DOM tile whose ID is no longer in the live grid.
     // This catches tiles spawned async by an earlier move that were already merged
@@ -2031,8 +2055,9 @@ function triggerExplosionAt(tileEl, tier, value){
   vibrateDevice(tier.tier>=6?'strong':'medium');
   if(tier.tier>=6) confettiBurst(Math.min(90, 18*tier.tier));
 }
-function triggerCheer(){
-  const cheer = CHEER_MESSAGES[Math.floor(Math.random()*CHEER_MESSAGES.length)];
+function triggerCheer(mergeValue){
+  const pool=(mergeValue&&mergeValue>=8192)?EPIC_CHEER_MESSAGES:CHEER_MESSAGES;
+  const cheer=pool[Math.floor(Math.random()*pool.length)];
   showBoardMessage(cheer.text, true, 0);
   playSound(cheer.sound);
 }
