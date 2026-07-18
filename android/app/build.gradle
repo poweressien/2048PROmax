@@ -41,6 +41,12 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+
+    // Mediation adapters go here once you pick networks in the AdMob console.
+    // The base Google Mobile Ads SDK itself is pulled in automatically by the
+    // @capacitor-community/admob plugin — you only add lines here for EXTRA
+    // networks. Example (Meta Audience Network), commented out until you're ready:
+    // implementation("com.google.ads.mediation:facebook:6.21.0.4")
 }
 
 apply from: 'capacitor.build.gradle'
