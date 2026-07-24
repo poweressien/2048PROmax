@@ -538,9 +538,33 @@ const AD_CONFIG = {
   },
   rewardedUnitId: 'ca-app-pub-6016968878067052/1195848935',
   rewardedAdFrequencyHint: '30s',
+  // --- Native AdMob (packaged Android/iOS app only, via @capacitor-community/admob).
+  // The web build at two048promax.onrender.com keeps using the AdSense/H5 Games config above —
+  // this block is only ever read when isNativeApp() is true. ---
+  native: {
+    // Real AdMob rewarded unit ID — same one used above, native ad-unit IDs work the same either way.
+    rewardedAdId: 'ca-app-pub-6016968878067052/1195848935',
+    // Native "Banner" ad units created in the AdMob console (separate from the AdSense slots
+    // above) — one per screen, so each shows its own ad and reports separately.
+    // 'home' isn't in here yet — no unit created for it so far; add a key once one exists.
+    bannerAdIds: {
+      menu:         'ca-app-pub-6016968878067052/1476639282',
+      stats:        'ca-app-pub-6016968878067052/8038178202',
+      achievements: 'ca-app-pub-6016968878067052/5670769238',
+    },
+    // Your own device ID(s) so real ad units serve test creatives on YOUR phone instead of
+    // live ones (find it via `adb logcat` on Android or the Xcode console on iOS — the SDK
+    // logs it on first launch).
+    testingDeviceIds: [],
+    // Flip to false before a release build. While true, every native ad request is forced to
+    // Google's test creative regardless of the real ad unit IDs above.
+    devMode: true,
+  },
 };
 function adsConfigured(){ return !!AD_CONFIG.adsensePublisherId && AD_CONFIG.adsensePublisherId.indexOf('XXXX')===-1; }
 function bannerConfigured(slot){ return adsConfigured() && AD_CONFIG.bannerSlots[slot] && AD_CONFIG.bannerSlots[slot].indexOf('0000000000')===-1; }
+function isNativeApp(){ return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); }
+function nativeBannerConfigured(){ return Object.values(AD_CONFIG.native.bannerAdIds).some(Boolean); }
 
 const MODES = [
   {id:'basic',  name:'Basic',  size:4, requires:null,     requiresTile:0,     unlockTile:2048,  desc:'The original 4×4 challenge'},
@@ -1398,6 +1422,7 @@ function render(){
     default: app.innerHTML=renderHome();
   }
   activateBannerSlots();
+  if(isNativeApp()) syncNativeBannerForScreen(CURRENT_SCREEN);
 }
 function withNav(html){ return html; }
 function bottomNavHtml(){ return ''; }
@@ -1943,6 +1968,9 @@ function renderSettings(){
       <button class="btn btn-secondary btn-block" style="margin-bottom:8px;" onclick="resetProgressData()">Reset Progress</button>
       <button class="btn btn-danger btn-block" onclick="factoryReset()">Factory Reset</button>
     </div></div>
+    ${isNativeApp() ? `<div class="settings-section"><h3>Privacy</h3><div class="card">
+      <button class="btn btn-secondary btn-block" onclick="openAdPrivacyOptions()">Ad Privacy Options</button>
+    </div></div>` : ''}
     <div class="about-version" onclick="tapVersion()">2048 PRO MAX · v1.0.0 · 100% Offline</div>
     ${STATE.progress.debugUnlocked? renderDebugPanel() : ''}
   </div>`);
@@ -2196,6 +2224,7 @@ function initAds(){
 
 const AdService={
   showRewarded(rewardName, onReward){
+    if(isNativeApp()){ showNativeRewarded(rewardName, onReward); return; }
     if(adsConfigured() && window.adBreak){
       window.adBreak({
         type:'reward',
@@ -2260,6 +2289,9 @@ function openAdChooser(){
 }
 
 function renderBannerSlot(slotKey){
+  // Native banners (if configured) are OS-level overlays handled by syncNativeBannerForScreen(),
+  // not DOM content — never render the AdSense <ins> markup inside the packaged app.
+  if(isNativeApp()) return '';
   if(bannerConfigured(slotKey)){
     return `<div class="banner-ad-wrap">
       <ins class="adsbygoogle"
@@ -2274,10 +2306,116 @@ function renderBannerSlot(slotKey){
   return '';
 }
 function activateBannerSlots(){
-  if(!adsConfigured()) return;
+  if(isNativeApp() || !adsConfigured()) return;
   document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])').forEach(()=>{
     try{ (window.adsbygoogle=window.adsbygoogle||[]).push({}); }catch(e){}
   });
+}
+
+// ============================== NATIVE ADS (AdMob via @capacitor-community/admob — packaged app only) ==============================
+let nativeRewardedLoaded=false;
+let nativeRewardPending=null; // {rewardName, onReward} while a rewarded ad is actively on screen
+let nativeRewardGranted=false;
+let nativeBannerCurrentKey=null; // which screen's banner (if any) is currently on screen
+
+function nativeAdMob(){ return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob; }
+
+async function initNativeAds(){
+  if(!isNativeApp()) return;
+  const AdMob=nativeAdMob();
+  if(!AdMob){ console.warn('AdMob native plugin not found in this build'); return; }
+  try{
+    await AdMob.initialize({
+      initializeForTesting: AD_CONFIG.native.devMode,
+      testingDevices: AD_CONFIG.native.testingDeviceIds,
+    });
+
+    // iOS ATT + GDPR/UMP consent — order matches the plugin's documented sequence:
+    // initialize -> requestConsentInfo (+ ATT on iOS) -> showConsentForm (if required) -> ads.
+    const [trackingInfo, consentInfo] = await Promise.all([
+      AdMob.trackingAuthorizationStatus().catch(()=>null),   // rejects harmlessly on Android
+      AdMob.requestConsentInfo().catch(()=>null),
+    ]);
+    if(trackingInfo && trackingInfo.status==='notDetermined'){
+      await AdMob.requestTrackingAuthorization().catch(()=>{});
+    }
+    if(consentInfo && consentInfo.isConsentFormAvailable && consentInfo.status==='REQUIRED'){
+      await AdMob.showConsentForm().catch(()=>{});
+    }
+
+    wireNativeRewardedListeners(AdMob);
+    prepareNativeRewarded();
+    // Banner is NOT started here — it's synced per screen from render() via syncNativeBannerForScreen(),
+    // since which ad unit (if any) should show depends on which screen the player is currently on.
+  }catch(e){ console.error('Native AdMob init failed', e); }
+}
+
+function wireNativeRewardedListeners(AdMob){
+  AdMob.addListener('onRewardedVideoAdLoaded', ()=>{ nativeRewardedLoaded=true; });
+  AdMob.addListener('onRewardedVideoAdFailedToLoad', ()=>{ nativeRewardedLoaded=false; });
+  AdMob.addListener('onRewardedVideoAdReward', ()=>{ nativeRewardGranted=true; });
+  AdMob.addListener('onRewardedVideoAdDismissed', ()=>{
+    if(nativeRewardPending){
+      if(nativeRewardGranted){ nativeRewardPending.onReward(); scheduleSave(); }
+      else { queueToast('Ad closed early — no reward given'); }
+    }
+    nativeRewardPending=null; nativeRewardGranted=false;
+    prepareNativeRewarded(); // always line up the next one
+  });
+  AdMob.addListener('onRewardedVideoAdFailedToShow', ()=>{
+    if(nativeRewardPending){ simulateRewardedAd(()=>{ nativeRewardPending.onReward(); scheduleSave(); }); }
+    nativeRewardPending=null; nativeRewardGranted=false;
+    prepareNativeRewarded();
+  });
+}
+
+function prepareNativeRewarded(){
+  const AdMob=nativeAdMob(); if(!AdMob) return;
+  nativeRewardedLoaded=false;
+  AdMob.prepareRewardVideoAd({
+    adId: AD_CONFIG.native.rewardedAdId,
+    isTesting: AD_CONFIG.native.devMode,
+  }).catch(e=>console.warn('Native rewarded failed to load', e));
+}
+
+async function showNativeRewarded(rewardName, onReward){
+  const AdMob=nativeAdMob();
+  if(!AdMob || !nativeRewardedLoaded){
+    // Not preloaded yet (first-launch race, or previous ad still loading its replacement) —
+    // don't make the player wait on a cold load, fall back to the simulated flow this once.
+    simulateRewardedAd(()=>{ onReward(); scheduleSave(); });
+    if(AdMob) prepareNativeRewarded();
+    return;
+  }
+  nativeRewardPending={ rewardName, onReward };
+  nativeRewardGranted=false;
+  try{ await AdMob.showRewardVideoAd(); }
+  catch(e){
+    if(nativeRewardPending){ simulateRewardedAd(()=>{ onReward(); scheduleSave(); }); nativeRewardPending=null; }
+    prepareNativeRewarded();
+  }
+}
+
+function syncNativeBannerForScreen(screenKey){
+  const AdMob=nativeAdMob(); if(!AdMob) return;
+  if(nativeBannerCurrentKey===screenKey) return; // already showing the right thing (or already hidden) for this screen
+  const adId=AD_CONFIG.native.bannerAdIds[screenKey];
+  AdMob.removeBanner().catch(()=>{}).finally(()=>{
+    nativeBannerCurrentKey=screenKey;
+    if(adId){
+      AdMob.showBanner({
+        adId,
+        adSize: 'ADAPTIVE_BANNER',
+        position: 'BOTTOM_CENTER',
+        isTesting: AD_CONFIG.native.devMode,
+      }).catch(e=>console.warn('Native banner failed', e));
+    }
+  });
+}
+
+function openAdPrivacyOptions(){
+  const AdMob=nativeAdMob(); if(!AdMob) return;
+  AdMob.showPrivacyOptionsForm().catch(()=>{});
 }
 
 // ============================== INIT ==============================
@@ -2317,7 +2455,7 @@ async function boot(){
     STATE.progress.selectedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
   }
   applyThemeToDOM();
-  initAds();
+  if(isNativeApp()){ initNativeAds(); } else { initAds(); }
   CURRENT_SCREEN='splash';
   render();
   setTimeout(()=>{ nav('home'); }, 2200);
