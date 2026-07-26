@@ -406,20 +406,58 @@ button{font-family:inherit; color:inherit;}
   animation: msg3d-big calc(1400ms * var(--anim-mult)) cubic-bezier(.22,1,.36,1) forwards;
 }
 @keyframes msg3d{
-  0%   { opacity:0; transform: translateY(18px) scale(.55); }
-  12%  { opacity:1; transform: translateY(-6px) scale(1.12); }
-  22%  { transform: translateY(2px) scale(.97); }
-  32%  { transform: translateY(0) scale(1); }
-  70%  { opacity:1; transform: translateY(0) scale(1); }
-  100% { opacity:0; transform: translateY(-28px) scale(.9); }
+  0%   { opacity:0; transform: perspective(600px) rotateX(65deg) translateZ(-140px) scale(.6); }
+  30%  { opacity:1; transform: perspective(600px) rotateX(-10deg) translateZ(26px) scale(1.1); }
+  45%  { transform: perspective(600px) rotateX(5deg) translateZ(0) scale(.98); }
+  60%  { transform: perspective(600px) rotateX(0deg) translateZ(0) scale(1); }
+  100% { opacity:0; transform: perspective(600px) rotateX(-55deg) translateZ(90px) scale(1.12); }
 }
 @keyframes msg3d-big{
-  0%   { opacity:0; transform: scale(.4) rotate(-4deg); }
-  10%  { opacity:1; transform: scale(1.2) rotate(1.5deg); }
-  18%  { transform: scale(.95) rotate(-.5deg); }
-  28%  { transform: scale(1.02) rotate(0); }
-  70%  { opacity:1; transform: scale(1) rotate(0); }
-  100% { opacity:0; transform: translateY(-34px) scale(.88); }
+  0%   { opacity:0; transform: perspective(700px) rotateY(-110deg) rotateX(15deg) translateZ(-200px) scale(.5); }
+  32%  { opacity:1; transform: perspective(700px) rotateY(14deg) rotateX(-8deg) translateZ(40px) scale(1.18); }
+  48%  { transform: perspective(700px) rotateY(-5deg) rotateX(3deg) translateZ(0) scale(1); }
+  62%  { transform: perspective(700px) rotateY(0deg) rotateX(0deg) translateZ(0) scale(1); }
+  100% { opacity:0; transform: perspective(700px) rotateY(35deg) translateZ(130px) scale(1.2); }
+}
+
+.hint-arrow-layer{
+  position:absolute; left:0; right:0; top:0; bottom:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:11;
+}
+.hint-arrow-wrap{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.hint-arrow{ display:flex; }
+.hint-arrow.dir-up{ transform:rotate(0deg); }
+.hint-arrow.dir-right{ transform:rotate(90deg); }
+.hint-arrow.dir-down{ transform:rotate(180deg); }
+.hint-arrow.dir-left{ transform:rotate(-90deg); }
+.hint-arrow-shape{
+  width:0; height:0;
+  border-left:24px solid transparent;
+  border-right:24px solid transparent;
+  border-bottom:36px solid var(--accent);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)) drop-shadow(0 0 24px var(--accent));
+  animation: hintArrow3d calc(1400ms * var(--anim-mult)) cubic-bezier(.22,1,.36,1) forwards;
+}
+.hint-arrow-label{
+  white-space:nowrap;
+  font-size:.7rem; font-weight:700; letter-spacing:.02em; color:var(--text-secondary);
+  background:var(--surface); border:1px solid var(--surface-border); border-radius:999px; padding:3px 10px;
+  animation: hintLabelFade calc(1400ms * var(--anim-mult)) ease forwards;
+}
+@keyframes hintArrow3d{
+  0%   { opacity:0; transform: perspective(500px) rotateX(80deg) translateZ(-90px) scale(.4); }
+  28%  { opacity:1; transform: perspective(500px) rotateX(-14deg) translateZ(30px) scale(1.15); }
+  42%  { transform: perspective(500px) rotateX(6deg) translateZ(0) scale(.97); }
+  56%  { transform: perspective(500px) rotateX(0deg) translateZ(0) scale(1); }
+  80%  { opacity:1; transform: perspective(500px) rotateX(0deg) translateZ(0) scale(1); }
+  100% { opacity:0; transform: perspective(500px) rotateX(-65deg) translateZ(-70px) scale(.7); }
+}
+@keyframes hintLabelFade{
+  0%   { opacity:0; }
+  28%  { opacity:1; }
+  80%  { opacity:1; }
+  100% { opacity:0; }
 }
 
 /* ---------- modals ---------- */
@@ -503,6 +541,14 @@ input[type="range"]{ width:100%; accent-color:var(--accent); }
 @keyframes particleFly{ to{ transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0; } }
 .confetti{ position:absolute; top:-20px; border-radius:2px; animation:confettiFall linear forwards; }
 @keyframes confettiFall{ to{ transform:translateY(112vh) rotate(600deg); opacity:.2; } }
+.balloon{ position:absolute; bottom:-60px; width:34px; height:42px; border-radius:50%; animation:balloonRise linear forwards; box-shadow:inset -6px -6px 10px rgba(0,0,0,.15), inset 4px 4px 8px rgba(255,255,255,.35); }
+.balloon::after{ content:''; position:absolute; left:50%; top:100%; width:1px; height:28px; background:rgba(120,120,120,.45); transform:translateX(-50%); }
+@keyframes balloonRise{
+  0%   { transform: translateY(0) translateX(0) rotate(-4deg); opacity:0; }
+  10%  { opacity:1; }
+  50%  { transform: translateY(-55vh) translateX(16px) rotate(5deg); }
+  100% { transform: translateY(-120vh) translateX(-12px) rotate(-5deg); opacity:.9; }
+}
 
 @media (min-width:640px){
   .screen{ max-width:640px; }
@@ -568,9 +614,9 @@ function nativeBannerConfigured(){ return Object.values(AD_CONFIG.native.bannerA
 
 const MODES = [
   {id:'basic',  name:'Basic',  size:4, requires:null,     requiresTile:0,     unlockTile:2048,  desc:'The original 4×4 challenge'},
-  {id:'medium', name:'Medium', size:5, requires:'basic',  requiresTile:2048,  unlockTile:4096,  desc:'5×5. More room, more chaos'},
-  {id:'hard',   name:'Hard',   size:6, requires:'medium', requiresTile:4096,  unlockTile:8192,  desc:'6×6 for serious players'},
-  {id:'expert', name:'Expert', size:8, requires:'hard',   requiresTile:8192,  unlockTile:16384, desc:'8×8. Not for the faint of heart'},
+  {id:'medium', name:'Medium', size:5, requires:'basic',  requiresTile:2048,  unlockTile:8192,  desc:'5×5. More room, more chaos'},
+  {id:'hard',   name:'Hard',   size:6, requires:'medium', requiresTile:8192,  unlockTile:32768, desc:'6×6 for serious players'},
+  {id:'expert', name:'Expert', size:8, requires:'hard',   requiresTile:32768, unlockTile:65536, desc:'8×8. Not for the faint of heart'},
 ];
 const COMING_SOON_MODES = [];
 const FUTURE_LOCKED_MODES = [];
@@ -619,17 +665,22 @@ const CHEER_MESSAGES = [
   { text:"Keep Grinding!",        sound:'cheer_boing'   },
   { text:"So Clean!",             sound:'cheer_zing'    },
 ];
-// Epic cheers — used when 8192+ tile is merged
-const EPIC_CHEER_MESSAGES = [
-  { text:"grandmaster💣😭",       sound:'cheer_zing'    },
-  { text:"GOAT💀",                        sound:'cheer_boing'   },
-  { text:"NO WORRY, U BAD😭🥶",  sound:'cheer_whistle' },
-  { text:"💀EKPE💀",              sound:'cheer_sizzle'  },
-  { text:"YOU TOO GOOD 😭😂",    sound:'cheer_pop'     },
-  { text:"UNTOUCHABLE!",                          sound:'cheer_zing'    },
-  { text:"W PLAYER💀",                    sound:'cheer_boing'   },
-  { text:"CERTIFIED BEAST!",                      sound:'cheer_whistle' },
-];
+// Milestone cheers — one unique phrase per exact tile value, 512 and up. Every tile in this
+// game is a power of 2, so each of these keys is the only real value its range can ever produce.
+const MILESTONE_CHEERS = {
+  512:    { text:"You're Cooking! 🔥",     sound:'cheer_sizzle'  },
+  1024:   { text:"On Fire! 🚀",            sound:'cheer_zing'    },
+  2048:   { text:"LEGENDARY! ⭐",          sound:'cheer_pop'     },
+  4096:   { text:"MONSTER MERGE! 💥",      sound:'cheer_boing'   },
+  8192:   { text:"UNSTOPPABLE! ⚡",        sound:'cheer_whistle' },
+  16384:  { text:"ABSOLUTE BEAST! 🦍",     sound:'cheer_ping'    },
+  32768:  { text:"GOAT STATUS 🐐💀",       sound:'cheer_zing'    },
+  65536:  { text:"💀EKPE MODE💀",          sound:'cheer_boing'   },
+  131072: { text:"BEYOND GODLY 😭🔥",      sound:'cheer_whistle' },
+  262144: { text:"CERTIFIED BEAST 💀",     sound:'cheer_pop'     },
+  524288: { text:"W PLAYER FOREVER💀",     sound:'cheer_sizzle'  },
+};
+function milestoneCheerFor(value){ return MILESTONE_CHEERS[value] || null; }
 
 const DAILY_TEMPLATES = [
   {type:'merges',    target:5,    label:t=>`Perform ${t} merges`},
@@ -1185,14 +1236,15 @@ function triggerWin(modeDef){
   playSound('victory');
   vibrateDevice('strong');
   confettiBurst();
+  balloonBurst();
   onGameWon();
   const nextMode=MODES.find(m=>m.requires===modeDef.id);
   let unlockMsg='';
   if(nextMode && !STATE.progress.unlockedModes.includes(nextMode.id)){
     STATE.progress.unlockedModes.push(nextMode.id);
-    unlockMsg=nextMode.name+' Mode ('+nextMode.size+'×'+nextMode.size+') is now unlocked!';
+    unlockMsg='🎉 The '+nextMode.size+'×'+nextMode.size+' board has been unlocked!';
   } else if(modeDef.id==='expert'){
-    unlockMsg='Master Mode (10×10) is coming in a future update!';
+    unlockMsg="You've conquered the final board! Master Mode (10×10) is coming in a future update — keep playing for an even higher score!";
   }
   const emptyCells=countEmpty(gridToBoard(ACTIVE_GAME.grid));
   runAchievementChecks({event:'win', emptyCells});
@@ -1200,10 +1252,10 @@ function triggerWin(modeDef){
   STATE.savedGame=serializeActiveGame();
   scheduleSave();
   showModal({
-    icon:'trophy', grad:'gold', title:'You Win!',
-    body:'You reached '+modeDef.unlockTile+' in '+modeDef.name+' Mode.'+(unlockMsg?' '+unlockMsg:''),
+    icon:'trophy', grad:'gold', title:'🎊 YOU WIN! 🏆',
+    body:'You reached '+modeDef.unlockTile.toLocaleString()+' in '+modeDef.name+' Mode!'+(unlockMsg?' '+unlockMsg:''),
     actions:[
-      {label:'Keep Playing', kind:'primary', onClick:()=>{ closeModal(); }},
+      {label:'Continue Playing', kind:'primary', onClick:()=>{ closeModal(); }},
       {label:'Back to Modes', kind:'secondary', onClick:()=>{ closeModal(); finalizeSession(true); nav('modes'); }},
     ]
   });
@@ -1553,6 +1605,7 @@ function renderGame(){
     </div>
     <div class="board-outer">
       <div class="board-msg-layer" id="board-msg-layer"></div>
+      <div class="hint-arrow-layer" id="hint-arrow-layer"></div>
       <div class="board" id="game-board" style="grid-template-columns:repeat(${mode.size},1fr);">
         ${Array.from({length:mode.size*mode.size}).map(()=>'<div class="cell-bg"></div>').join('')}
         <div class="tile-layer" id="tile-layer"></div>
@@ -2026,11 +2079,11 @@ function showBoardMessage(text, isCheer, tier){
   // Only one message at a time — clear any existing
   while(layer.firstChild) layer.firstChild.remove();
   const el=document.createElement('div');
-  const isHigh = !isCheer && tier>=6;
+  const isHigh = tier>=6;
   el.className='merge-msg'+(isCheer?' cheer-msg':'')+(isHigh?' tier-high':'');
   el.textContent=text;
   layer.appendChild(el);
-  const duration = isCheer ? 1200 : isHigh ? 1500 : 1300;
+  const duration = isHigh ? 1500 : isCheer ? 1200 : 1300;
   setTimeout(()=>{ if(el.parentNode) el.remove(); }, Math.round(duration * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anim-mult'))||1)));
 }
 function screenShake(){
@@ -2075,35 +2128,47 @@ function confettiBurst(count){
     setTimeout(()=>c.remove(), 4200);
   }
 }
+function balloonBurst(count){
+  count=count||14;
+  const layer=document.getElementById('fx-layer');
+  if(!layer) return;
+  const colors=['#e8a33d','#5fb8b0','#e35d5d','#f0c274','#8fbc5a','#2dd4bf','#cdbcfe','#ff8fab'];
+  for(let i=0;i<count;i++){
+    const b=document.createElement('div');
+    b.className='balloon';
+    b.style.left=(5+Math.random()*88)+'vw';
+    b.style.background=colors[Math.floor(Math.random()*colors.length)];
+    b.style.animationDuration=(3200+Math.random()*1600)+'ms';
+    b.style.animationDelay=(Math.random()*400)+'ms';
+    layer.appendChild(b);
+    setTimeout(()=>b.remove(), 5200);
+  }
+}
 function triggerExplosionAt(tileEl, tier, value){
-  showBoardMessage(tier.msg, false, tier.tier);
+  const milestone=milestoneCheerFor(value);
+  showBoardMessage(milestone?milestone.text:tier.msg, false, tier.tier);
   screenShake();
   burstParticlesFromEl(tileEl, tier.tier);
-  playSound('explosion');
+  playSound(milestone?milestone.sound:'explosion');
   vibrateDevice(tier.tier>=6?'strong':'medium');
   if(tier.tier>=6) confettiBurst(Math.min(90, 18*tier.tier));
 }
 function triggerCheer(mergeValue){
-  const pool=(mergeValue&&mergeValue>=8192)?EPIC_CHEER_MESSAGES:CHEER_MESSAGES;
-  const cheer=pool[Math.floor(Math.random()*pool.length)];
+  const cheer=CHEER_MESSAGES[Math.floor(Math.random()*CHEER_MESSAGES.length)];
   showBoardMessage(cheer.text, true, 0);
   playSound(cheer.sound);
 }
 
 function showHintArrow(direction){
-  const rotate={up:0,right:90,down:180,left:270};
-  queueToast('Hint: swipe '+direction);
-  const layer=document.getElementById('fx-layer');
-  const board=document.getElementById('game-board');
-  if(!board||!layer) return;
-  const rect=board.getBoundingClientRect();
-  const el=document.createElement('div');
-  el.innerHTML=badge('arrowUp','gold','ibadge-lg');
-  el.style.cssText=`position:absolute; left:${rect.left+rect.width/2-36}px; top:${rect.top+rect.height/2-36}px; opacity:0; transform:scale(.6) rotate(${rotate[direction]}deg); transition:opacity .25s ease, transform .25s ease;`;
-  layer.appendChild(el);
-  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform=`scale(1) rotate(${rotate[direction]}deg)`; });
-  setTimeout(()=>{ el.style.opacity='0'; }, 900);
-  setTimeout(()=>el.remove(), 1200);
+  const layer=document.getElementById('hint-arrow-layer');
+  if(!layer) return;
+  while(layer.firstChild) layer.firstChild.remove();
+  const wrap=document.createElement('div');
+  wrap.className='hint-arrow-wrap';
+  wrap.innerHTML=`<div class="hint-arrow dir-${direction}"><div class="hint-arrow-shape"></div></div><div class="hint-arrow-label">Swipe ${direction}</div>`;
+  layer.appendChild(wrap);
+  const dur=Math.round(1400*(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anim-mult'))||1));
+  setTimeout(()=>{ if(wrap.parentNode) wrap.remove(); }, dur);
 }
 
 // ---- Synthesized audio (Web Audio API — no external sound files, fully offline) ----
