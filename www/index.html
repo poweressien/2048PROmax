@@ -2179,7 +2179,7 @@ function triggerExplosionAt(tileEl, tier, value){
   showBoardMessage(milestone?milestone.text:tier.msg, false, tier.tier);
   screenShake();
   burstParticlesFromEl(tileEl, tier.tier);
-  playSound(milestone?milestone.sound:'explosion');
+  playSound('explosion');
   vibrateDevice(tier.tier>=6?'strong':'medium');
   if(tier.tier>=6) confettiBurst(Math.min(90, 18*tier.tier));
 }
